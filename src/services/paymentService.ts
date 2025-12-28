@@ -64,7 +64,54 @@ class PaymentService {
   }
 
   /**
-   * Xử lý VNPay Return Callback
+   * Verify và xử lý VNPay callback
+   * GET /payment/vnpay/verify
+   * 
+   * Frontend gọi endpoint này với VNPay params để verify signature và xử lý transaction
+   * 
+   * @returns Promise với kết quả xử lý
+   */
+  async verifyVNPayCallback(): Promise<{
+    status: 'success' | 'failed';
+    message: string;
+    booking_id?: number;
+    transaction_code?: string;
+    error_code?: string;
+    error?: string;
+  }> {
+    // Lấy tất cả query params từ URL (VNPay params)
+    const params = new URLSearchParams(window.location.search);
+    
+    // Tạo query string từ params để gửi đến backend
+    const queryString = params.toString();
+    
+    try {
+      const response = await api.get<{
+        status: 'success' | 'failed';
+        message: string;
+        booking_id?: number;
+        transaction_code?: string;
+        error_code?: string;
+        error?: string;
+      }>(`/payment/vnpay/verify?${queryString}`);
+      
+      return response.data;
+    } catch (error: any) {
+      // Xử lý lỗi từ backend
+      if (error?.response?.data) {
+        return {
+          status: 'failed',
+          message: error.response.data.message || 'Có lỗi xảy ra khi xử lý thanh toán',
+          error: error.response.data.error,
+          error_code: error.response.data.error_code,
+        };
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Xử lý VNPay Return Callback (Legacy - khi backend redirect về với params đã xử lý)
    * GET /payment/vnpay/return
    * 
    * Note: Endpoint này được VNPay gọi trực tiếp, không cần gọi từ frontend
