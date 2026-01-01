@@ -58,15 +58,28 @@ export const truncateText = (text: string, maxLength: number): string => {
 // Get status badge color
 export const getStatusColor = (status: string): string => {
   const statusMap: Record<string, string> = {
-    'cho_thanh_toan': 'yellow',
-    'da_thanh_toan': 'green',
+    // Trạng thái đặt chỗ (trang_thai_dat_cho)
+    'cho_xac_nhan': 'yellow',
     'da_xac_nhan': 'blue',
-    'hoan_thanh': 'green',
+    'da_thanh_toan': 'green',
     'da_huy': 'red',
+    'hoan_thanh': 'green',
+    // Trạng thái khởi hành (trang_thai_khoi_hanh)
+    'len_lich': 'blue',
+    'xac_nhan': 'green',
+    'huy': 'red',
+    'het_cho': 'gray',
+    'con_cho': 'green',
+    // Legacy/backward compatibility
+    'cho_thanh_toan': 'yellow',
     'hoan_tien': 'orange',
     'hoat_dong': 'green',
     'tam_ngung': 'red',
-    'het_cho': 'gray',
+    // Frontend display values
+    'pending': 'yellow',
+    'confirmed': 'blue',
+    'completed': 'green',
+    'cancelled': 'red',
   };
   return statusMap[status] || 'gray';
 };
@@ -74,15 +87,28 @@ export const getStatusColor = (status: string): string => {
 // Get status text
 export const getStatusText = (status: string): string => {
   const statusMap: Record<string, string> = {
-    'cho_thanh_toan': 'Chờ thanh toán',
-    'da_thanh_toan': 'Đã thanh toán',
+    // Trạng thái đặt chỗ (trang_thai_dat_cho)
+    'cho_xac_nhan': 'Chờ xác nhận',
     'da_xac_nhan': 'Đã xác nhận',
-    'hoan_thanh': 'Hoàn thành',
+    'da_thanh_toan': 'Đã thanh toán',
     'da_huy': 'Đã hủy',
+    'hoan_thanh': 'Hoàn thành',
+    // Trạng thái khởi hành (trang_thai_khoi_hanh)
+    'len_lich': 'Lên lịch',
+    'xac_nhan': 'Xác nhận',
+    'huy': 'Hủy',
+    'het_cho': 'Hết chỗ',
+    'con_cho': 'Còn chỗ',
+    // Legacy/backward compatibility
+    'cho_thanh_toan': 'Chờ thanh toán',
     'hoan_tien': 'Hoàn tiền',
     'hoat_dong': 'Hoạt động',
     'tam_ngung': 'Tạm ngưng',
-    'het_cho': 'Hết chỗ',
+    // Frontend display values
+    'pending': 'Chờ xác nhận',
+    'confirmed': 'Đã xác nhận',
+    'completed': 'Hoàn thành',
+    'cancelled': 'Đã hủy',
   };
   return statusMap[status] || status;
 };

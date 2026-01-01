@@ -9,7 +9,7 @@ interface ModalProps {
 }
 
 export const Modal = ({ isOpen, onClose, title, children, showCloseButton = true }: ModalProps) => {
-  // Close on Escape key
+  // Close on Escape key and prevent background scroll
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -17,15 +17,43 @@ export const Modal = ({ isOpen, onClose, title, children, showCloseButton = true
       }
     };
 
+    const preventScroll = (e: WheelEvent | TouchEvent) => {
+      // Chỉ ngăn scroll nếu scroll ở backdrop (không phải trong modal content)
+      const target = e.target as HTMLElement;
+      const modalContent = target.closest('.modal-content-scrollable');
+      if (!modalContent) {
+        e.preventDefault();
+      }
+    };
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
       // Prevent body scroll when modal is open
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
+      
+      // Ngăn scroll trên backdrop
+      document.addEventListener('wheel', preventScroll, { passive: false });
+      document.addEventListener('touchmove', preventScroll, { passive: false });
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener('wheel', preventScroll);
+      document.removeEventListener('touchmove', preventScroll);
+      
+      // Restore body scroll
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
     };
   }, [isOpen, onClose]);
 
@@ -42,36 +70,48 @@ export const Modal = ({ isOpen, onClose, title, children, showCloseButton = true
       }}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-slate-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 animate-scale-in overflow-hidden">
-        {/* Glow Effect */}
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-3xl opacity-20 blur-xl" />
-
-        {/* Content */}
-        <div className="relative p-6">
-          {/* Header */}
-          {title && (
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
-                {title}
-              </h3>
-              {showCloseButton && (
-                <button
-                  onClick={onClose}
-                  className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-            </div>
+      <div className="relative w-full max-w-4xl max-h-[90vh] bg-transparent rounded-3xl shadow-2xl animate-scale-in overflow-hidden flex flex-col">
+        {/* Content - không có background vì ReviewForm đã có */}
+        <div className="relative flex flex-col max-h-[90vh]">
+          {/* Close Button */}
+          {showCloseButton && (
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 z-20 p-3 bg-slate-900/80 backdrop-blur-sm text-white hover:bg-slate-800 rounded-full transition-all duration-200 shadow-lg border border-white/10 hover:border-white/20"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           )}
 
-          {/* Body */}
-          <div className="text-slate-300">
+          {/* Body - scrollable */}
+          <div 
+            className="modal-content-scrollable overflow-y-auto overflow-x-hidden max-h-[90vh] pr-2"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(148, 163, 184, 0.5) transparent',
+            }}
+          >
+            <style>{`
+              .modal-content-scrollable::-webkit-scrollbar {
+                width: 8px;
+              }
+              .modal-content-scrollable::-webkit-scrollbar-track {
+                background: rgba(15, 23, 42, 0.3);
+                border-radius: 4px;
+              }
+              .modal-content-scrollable::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, rgba(251, 191, 36, 0.6), rgba(20, 184, 166, 0.6));
+                border-radius: 4px;
+              }
+              .modal-content-scrollable::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(180deg, rgba(251, 191, 36, 0.8), rgba(20, 184, 166, 0.8));
+              }
+            `}</style>
             {children}
           </div>
         </div>

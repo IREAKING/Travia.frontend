@@ -93,16 +93,30 @@ export const bookingService = {
   },
 
   /**
-   * Get my bookings - Lấy danh sách đơn đặt của tôi với phân trang
-   * GET /booking/my-bookings?limit=10&offset=0
+   * Get my bookings - Lấy danh sách đơn đặt của tôi với phân trang và filter
+   * GET /booking/my-bookings?limit=10&offset=0&trang_thai_dat_cho=cho_xac_nhan&trang_thai_khoi_hanh=con_cho
    * 
    * @param limit - Số lượng booking mỗi trang (mặc định: 10)
    * @param offset - Vị trí bắt đầu (mặc định: 0)
+   * @param trangThaiDatCho - Filter theo trạng thái đặt chỗ (optional)
+   * @param trangThaiKhoiHanh - Filter theo trạng thái khởi hành (optional)
    * @returns Promise<GetMyBookingsResponse>
    */
-  getMyBookings: async (limit: number = 10, offset: number = 0): Promise<GetMyBookingsResponse> => {
+  getMyBookings: async (
+    limit: number = 10, 
+    offset: number = 0,
+    trangThaiDatCho?: string,
+    trangThaiKhoiHanh?: string
+  ): Promise<GetMyBookingsResponse> => {
+    const params: any = { limit, offset };
+    if (trangThaiDatCho) {
+      params.trang_thai_dat_cho = trangThaiDatCho;
+    }
+    if (trangThaiKhoiHanh) {
+      params.trang_thai_khoi_hanh = trangThaiKhoiHanh;
+    }
     const response = await api.get<GetMyBookingsResponse>('/booking/my-bookings', {
-      params: { limit, offset }
+      params
     });
     return response.data;
   },

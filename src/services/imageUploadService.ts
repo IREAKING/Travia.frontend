@@ -16,6 +16,47 @@ export interface UploadImagesResponse {
 }
 
 export const imageUploadService = {
+  // Upload multiple images for review (to review-images folder)
+  uploadReviewImages: async (files: File[]): Promise<string[]> => {
+    if (!files || files.length === 0) {
+      throw new Error('Không có file nào để upload');
+    }
+
+    try {
+      const formData = new FormData();
+      
+      // Add all files to form data
+      files.forEach((file) => {
+        if (file instanceof File) {
+          formData.append('files', file);
+        }
+      });
+
+      formData.append('folder_path', 'review-images');
+
+      console.log(`📤 Uploading ${files.length} review image(s)...`);
+
+      const response = await api.post<{ data: string[]; message: string }>(
+        '/storage/upload-multiple',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 30000,
+        }
+      );
+
+      const urls = response.data.data || [];
+      console.log(`✅ Upload completed: ${urls.length} image(s)`);
+      
+      return urls;
+    } catch (error: any) {
+      console.error('❌ Error uploading review images:', error);
+      throw error;
+    }
+  },
+
   // Upload multiple images for tour creation
   uploadTourImages: async (files: File[]): Promise<UploadImagesResponse> => {
     if (!files || files.length === 0) {

@@ -1662,6 +1662,7 @@ export const CreateTourPage = () => {
                         >
                           <option value="len_lich" className="bg-slate-900">📋 Lên lịch</option>
                           <option value="xac_nhan" className="bg-slate-900">✅ Xác nhận</option>
+                          <option value="con_cho" className="bg-slate-900">🟢 Còn chỗ</option>
                           <option value="huy" className="bg-slate-900">❌ Hủy</option>
                           <option value="hoan_thanh" className="bg-slate-900">🎉 Hoàn thành</option>
                         </select>

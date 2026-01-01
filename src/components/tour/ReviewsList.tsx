@@ -52,7 +52,9 @@ export const ReviewsList = ({ tourId }: ReviewsListProps) => {
     );
   }
 
-  if (!reviewData || reviewData.tong_so_danh_gia === 0) {
+  if (!reviewData || !reviewData.thong_tin_danh_gia || 
+      (Array.isArray(reviewData.thong_tin_danh_gia) && reviewData.thong_tin_danh_gia.length === 0) ||
+      reviewData.tong_so_danh_gia === 0) {
     return (
       <div className="bg-gray-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
         <h2 className="text-2xl font-bold text-white mb-6">Đánh giá từ khách hàng</h2>
@@ -69,11 +71,14 @@ export const ReviewsList = ({ tourId }: ReviewsListProps) => {
     );
   }
 
-  // Pagination logic
+  // Pagination logic - đảm bảo thong_tin_danh_gia là array
+  const reviewsList = Array.isArray(reviewData.thong_tin_danh_gia) 
+    ? reviewData.thong_tin_danh_gia 
+    : [];
   const startIndex = (currentPage - 1) * reviewsPerPage;
   const endIndex = startIndex + reviewsPerPage;
-  const paginatedReviews = reviewData.thong_tin_danh_gia.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(reviewData.thong_tin_danh_gia.length / reviewsPerPage);
+  const paginatedReviews = reviewsList.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(reviewsList.length / reviewsPerPage);
 
   // Calculate rating percentages for bar chart
   const ratingDistribution = [

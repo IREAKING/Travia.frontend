@@ -7,6 +7,9 @@ import { formatCurrency, formatDate, getStatusText } from '../../utils/formatter
 import { bookingService } from '../../services/bookingService';
 import { paymentService } from '../../services/paymentService';
 import { useToast } from '../../hooks/useToast';
+import { ReviewForm } from '../../components/review/ReviewForm';
+import { Modal } from '../../components/common/Modal';
+import { reviewService } from '../../services/reviewService';
 
 interface BookingDisplay {
   id: number;
@@ -20,9 +23,11 @@ interface BookingDisplay {
   children: number;
   total_price: number;
   currency: string;
-  status: string;
+  status: string; // Trạng thái đặt chỗ (trang_thai_dat_cho)
+  departure_status?: string; // Trạng thái khởi hành (trang_thai_khoi_hanh)
   payment_status: string;
   notes?: string;
+  has_review?: boolean; // Trạng thái đánh giá
 }
 
 export const MyBookingsPage = () => {
@@ -31,11 +36,14 @@ export const MyBookingsPage = () => {
   const [bookings, setBookings] = useState<BookingDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState<number | null>(null);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled'>('all');
+  const [trangThaiDatCho, setTrangThaiDatCho] = useState<string>('all');
+  const [trangThaiKhoiHanh, setTrangThaiKhoiHanh] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const pageSize = 10;
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<BookingDisplay | null>(null);
 
   const handleVNPayPayment = async (bookingId: number) => {
     // Check authentication before calling API
@@ -67,66 +75,133 @@ export const MyBookingsPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, [currentPage]);
-
   // Helper function to extract status string from possible object format
   const getStatusString = (status: any): string => {
-    if (!status) return 'pending';
+    if (!status) return 'cho_xac_nhan';
     if (typeof status === 'string') return status;
     if (typeof status === 'object' && status.trang_thai_dat_cho) {
-      return status.valid ? status.trang_thai_dat_cho : 'pending';
+      return status.valid ? status.trang_thai_dat_cho : 'cho_xac_nhan';
     }
     if (typeof status === 'object' && status.TrangThaiDatCho) {
-      return status.valid ? status.TrangThaiDatCho : 'pending';
+      return status.valid ? status.TrangThaiDatCho : 'cho_xac_nhan';
     }
-    return 'pending';
+    return 'cho_xac_nhan';
   };
 
-  const fetchBookings = async () => {
+  // Helper function to extract departure status string
+  const getDepartureStatusString = (status: any): string => {
+    if (!status) return '';
+    if (typeof status === 'string') return status;
+    if (typeof status === 'object' && status.trang_thai_khoi_hanh) {
+      return status.valid ? status.trang_thai_khoi_hanh : '';
+    }
+    if (typeof status === 'object' && status.TrangThaiKhoiHanh) {
+      return status.valid ? status.TrangThaiKhoiHanh : '';
+    }
+    return '';
+  };
+
+  // Fetch bookings function
+  const loadBookings = async () => {
     setLoading(true);
     try {
       const offset = (currentPage - 1) * pageSize;
-      const result = await bookingService.getMyBookings(pageSize, offset);
+      
+      // Chuyển đổi giá trị 'all' thành undefined để service không đưa vào query string
+      const trangThaiDatChoParam = trangThaiDatCho === 'all' ? undefined : trangThaiDatCho;
+      
+      // Xử lý giá trị đặc biệt 'sap_toi' - chuyển thành danh sách các trạng thái
+      let trangThaiKhoiHanhParam: string | undefined;
+      if (trangThaiKhoiHanh === 'all') {
+        trangThaiKhoiHanhParam = undefined;
+      } else if (trangThaiKhoiHanh === 'sap_toi') {
+        // Gửi nhiều giá trị phân cách bằng dấu phẩy
+        trangThaiKhoiHanhParam = 'len_lich,con_cho,het_cho';
+      } else {
+        trangThaiKhoiHanhParam = trangThaiKhoiHanh;
+      }
+      
+      console.log('📡 Calling API with:', { 
+        trangThaiDatCho: trangThaiDatChoParam, 
+        trangThaiKhoiHanh: trangThaiKhoiHanhParam,
+        page: currentPage,
+        offset
+      });
+
+      // Gọi service
+      const result = await bookingService.getMyBookings(
+        pageSize, 
+        offset, 
+        trangThaiDatChoParam, 
+        trangThaiKhoiHanhParam
+      );
+      
+      console.log('📦 API Response:', result);
+      
+      // Kiểm tra result và data
+      if (!result || !result.data) {
+        console.warn('⚠️ API response is invalid:', result);
+        setBookings([]);
+        setTotalCount(0);
+        setTotalPages(0);
+        return;
+      }
       
       // Map API response to display format
-      // Backend returns GetBookingsByUserRow which has: id, khoi_hanh_id, so_nguoi_lon, so_tre_em, tong_tien, don_vi_tien_te, trang_thai, phuong_thuc_thanh_toan, ngay_dat, ngay_khoi_hanh, ngay_ket_thuc, ten_tour, anh_tour
-      const mappedBookings: BookingDisplay[] = result.data.map((booking: any) => {
-        // Extract status string from possible object format
-        const statusStr = getStatusString(booking.trang_thai);
-        
-        // Parse dates - handle both string and Date objects
-        const parseDate = (date: any): string => {
-          if (!date) return '';
-          if (typeof date === 'string') return date.split('T')[0];
-          if (date instanceof Date) return date.toISOString().split('T')[0];
-          return '';
-        };
-        
-        return {
-          id: booking.id || 0,
-          tour_id: booking.khoi_hanh_id || booking.tour_id || 0, // Use khoi_hanh_id or fallback to tour_id
-        tour_title: booking.ten_tour || 'N/A',
-        tour_image: booking.anh_tour || undefined,
-          booking_date: parseDate(booking.ngay_dat),
-          departure_date: parseDate(booking.ngay_khoi_hanh),
-          return_date: parseDate(booking.ngay_ket_thuc),
-        adults: booking.so_nguoi_lon || 0,
-        children: booking.so_tre_em || 0,
-          total_price: typeof booking.tong_tien === 'string' ? parseFloat(booking.tong_tien) : (typeof booking.tong_tien === 'number' ? booking.tong_tien : 0),
-        currency: booking.don_vi_tien_te || 'VND',
-          status: statusStr,
-        payment_status: booking.phuong_thuc_thanh_toan ? 'paid' : 'pending',
-          notes: booking.ghi_chu || undefined,
-        };
-      });
+      const mappedBookings: BookingDisplay[] = await Promise.all(
+        (result.data || []).map(async (booking: any) => {
+          const bookingDisplay: BookingDisplay = {
+            id: booking.id || 0,
+            tour_id: booking.khoi_hanh_id || 0,
+            tour_title: booking.ten_tour || 'N/A',
+            tour_image: booking.anh_tour,
+            booking_date: booking.ngay_dat,
+            departure_date: booking.ngay_khoi_hanh,
+            return_date: booking.ngay_ket_thuc,
+            adults: booking.so_nguoi_lon || 0,
+            children: booking.so_tre_em || 0,
+            total_price: Number(booking.tong_tien) || 0,
+            currency: booking.don_vi_tien_te || 'VND',
+            status: getStatusString(booking.trang_thai),
+            departure_status: getDepartureStatusString(booking.trang_thai_khoi_hanh),
+            payment_status: booking.phuong_thuc_thanh_toan ? 'paid' : 'pending',
+            notes: booking.ghi_chu || undefined,
+            has_review: false, // Mặc định
+          };
+
+          // Kiểm tra trạng thái đánh giá: 
+          // Cho phép đánh giá khi: trang_thai_dat_cho = 'da_thanh_toan' VÀ trang_thai_khoi_hanh = 'hoan_thanh'
+          const canReview = bookingDisplay.status === 'da_thanh_toan' && 
+                           bookingDisplay.departure_status === 'hoan_thanh';
+          
+          if (canReview) {
+            try {
+              const reviewStatus = await reviewService.checkReviewStatus(bookingDisplay.id);
+              bookingDisplay.has_review = reviewStatus.has_review;
+              console.log(`📝 Booking ${bookingDisplay.id} (dat_cho: ${bookingDisplay.status}, khoi_hanh: ${bookingDisplay.departure_status}) review status:`, reviewStatus.has_review);
+            } catch (error) {
+              console.error(`Error checking review status for booking ${bookingDisplay.id}:`, error);
+              bookingDisplay.has_review = false; // Mặc định chưa có review nếu lỗi
+            }
+          } else {
+            console.log(`📋 Booking ${bookingDisplay.id} - dat_cho: ${bookingDisplay.status}, khoi_hanh: ${bookingDisplay.departure_status} (cannot review)`);
+          }
+
+          return bookingDisplay;
+        })
+      );
       
+      console.log('✅ Bookings loaded:', mappedBookings.length);
+      console.log('📊 Bookings with status hoan_thanh:', mappedBookings.filter(b => b.status === 'hoan_thanh').map(b => ({
+        id: b.id,
+        status: b.status,
+        has_review: b.has_review
+      })));
       setBookings(mappedBookings);
       setTotalCount(result.total);
       setTotalPages(Math.ceil(result.total / pageSize));
     } catch (error) {
-      console.error('Failed to fetch bookings:', error);
+      console.error('❌ Failed to fetch bookings:', error);
       setBookings([]);
       setTotalCount(0);
       setTotalPages(0);
@@ -135,18 +210,26 @@ export const MyBookingsPage = () => {
     }
   };
 
-  const filteredBookings = bookings.filter(booking => {
-    if (filter === 'all') return true;
-    return booking.status === filter;
-  });
+  // 1. Reset trang về 1 khi người dùng thay đổi bộ lọc
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [trangThaiDatCho, trangThaiKhoiHanh]);
+
+  // 2. Chỉ thực hiện fetch khi currentPage thay đổi 
+  // (hoặc khi filters thay đổi và trang đã là 1)
+  useEffect(() => {
+    loadBookings();
+  }, [currentPage, trangThaiDatCho, trangThaiKhoiHanh]);
 
   const getStatusBadgeClass = (status: string) => {
     const statusMap: Record<string, string> = {
+      // Trạng thái đặt chỗ (trang_thai_dat_cho)
       'cho_xac_nhan': 'bg-amber-500/20 text-amber-400 border-amber-500/30',
       'da_xac_nhan': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
       'da_thanh_toan': 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
       'hoan_thanh': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
       'da_huy': 'bg-rose-500/20 text-rose-400 border-rose-500/30',
+      // Backward compatibility với frontend display values
       'pending': 'bg-amber-500/20 text-amber-400 border-amber-500/30',
       'confirmed': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
       'completed': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -225,26 +308,71 @@ export const MyBookingsPage = () => {
         <div className="max-w-6xl mx-auto">
           {/* Filter Tabs */}
           <div className="mb-8">
-              <div className="flex flex-wrap gap-3">
-              {[
-                { key: 'all', label: 'Tất cả', count: totalCount },
-                { key: 'pending', label: 'Chờ xác nhận', count: bookings.filter(b => b.status === 'pending' || b.status === 'cho_xac_nhan').length },
-                { key: 'confirmed', label: 'Đã xác nhận', count: bookings.filter(b => b.status === 'confirmed' || b.status === 'da_xac_nhan').length },
-                { key: 'completed', label: 'Hoàn thành', count: bookings.filter(b => b.status === 'completed' || b.status === 'hoan_thanh').length },
-                { key: 'cancelled', label: 'Đã hủy', count: bookings.filter(b => b.status === 'cancelled' || b.status === 'da_huy').length },
-              ].map(({ key, label, count }) => (
+            {/* Header với nút xóa filter */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-white">Bộ lọc</h2>
+              {(trangThaiDatCho !== 'all' || trangThaiKhoiHanh !== 'all') && (
                 <button
-                  key={key}
-                  onClick={() => setFilter(key as any)}
-                    className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                    filter === key
-                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg shadow-cyan-500/30'
-                        : 'bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white border border-white/10'
-                  }`}
+                  onClick={() => { 
+                    setTrangThaiDatCho('all'); 
+                    setTrangThaiKhoiHanh('all'); 
+                  }}
+                  className="text-xs text-cyan-400 underline hover:text-cyan-300 transition-colors"
                 >
-                    {label} <span className="ml-1.5 opacity-80">({count})</span>
+                  Xóa tất cả lọc
                 </button>
-              ))}
+              )}
+            </div>
+            
+            {/* Filters Grid */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Filter theo trạng thái đặt chỗ */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-400 mb-3">
+                  <span className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Trạng thái đặt chỗ
+                  </span>
+                </label>
+                <select
+                  value={trangThaiDatCho}
+                  onChange={(e) => {
+                    console.log('🖱️ Change filter trangThaiDatCho:', e.target.value);
+                    setTrangThaiDatCho(e.target.value);
+                  }}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-white/10 rounded-xl text-white font-semibold text-sm transition-all duration-300 hover:bg-slate-800 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 cursor-pointer"
+                >
+                  <option value="all" className="bg-slate-900">Tất cả</option>
+                  <option value="cho_xac_nhan" className="bg-slate-900">Chờ xác nhận</option>
+                  <option value="da_thanh_toan" className="bg-slate-900">Đã thanh toán</option>
+                </select>
+              </div>
+
+              {/* Filter theo trạng thái khởi hành */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-400 mb-3">
+                  <span className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Trạng thái khởi hành
+                  </span>
+                </label>
+                <select
+                  value={trangThaiKhoiHanh}
+                  onChange={(e) => {
+                    console.log('🖱️ Change filter trangThaiKhoiHanh:', e.target.value);
+                    setTrangThaiKhoiHanh(e.target.value);
+                  }}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-white/10 rounded-xl text-white font-semibold text-sm transition-all duration-300 hover:bg-slate-800 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 cursor-pointer"
+                >
+                  <option value="all" className="bg-slate-900">Tất cả</option>
+                  <option value="sap_toi" className="bg-slate-900">Khởi hành sắp tới</option>
+                  <option value="hoan_thanh" className="bg-slate-900">Hoàn thành</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -253,7 +381,7 @@ export const MyBookingsPage = () => {
             <div className="flex justify-center py-12">
               <LoadingSpinner size="lg" />
             </div>
-          ) : filteredBookings.length === 0 ? (
+          ) : bookings.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center border border-cyan-500/30 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-purple-400 rounded-full animate-pulse opacity-30" />
@@ -280,7 +408,7 @@ export const MyBookingsPage = () => {
           ) : (
             <>
               <div className="space-y-6">
-                {filteredBookings.map((booking) => (
+                {bookings.map((booking) => (
                   <div key={booking.id} className="group relative">
                     {/* Glow Effect */}
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-3xl opacity-0 group-hover:opacity-30 blur-xl transition-all duration-700" />
@@ -405,7 +533,7 @@ export const MyBookingsPage = () => {
                             
                             {/* Nút thanh toán VNPay - chỉ hiển thị khi chưa thanh toán */}
                             {(booking.payment_status === 'pending' && 
-                              (booking.status === 'pending' || booking.status === 'cho_xac_nhan' || booking.status === 'da_xac_nhan')) && (
+                              (booking.status === 'cho_xac_nhan' || booking.status === 'da_xac_nhan')) && (
                               <button
                                 onClick={() => handleVNPayPayment(booking.id)}
                                 disabled={processingPayment === booking.id}
@@ -434,7 +562,7 @@ export const MyBookingsPage = () => {
                               </button>
                             )}
                             
-                            {(booking.status === 'pending' || booking.status === 'cho_xac_nhan') && booking.payment_status === 'paid' && (
+                            {(booking.status === 'cho_xac_nhan') && booking.payment_status === 'paid' && (
                               <button className="px-6 py-3 bg-rose-500/20 border-2 border-rose-500/30 text-rose-400 font-semibold rounded-xl hover:bg-rose-500/30 hover:border-rose-500/50 transition-all duration-300 flex items-center gap-2">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -442,7 +570,7 @@ export const MyBookingsPage = () => {
                               Hủy đặt chỗ
                             </button>
                           )}
-                            {(booking.status === 'confirmed' || booking.status === 'da_xac_nhan' || booking.status === 'da_thanh_toan') && booking.payment_status === 'paid' && (
+                            {(booking.status === 'da_xac_nhan' || booking.status === 'da_thanh_toan' || booking.status === 'hoan_thanh') && booking.payment_status === 'paid' && (
                               <button className="relative px-6 py-3 overflow-hidden rounded-xl font-semibold text-white transition-all duration-500 group">
                                 <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl" />
                                 <span className="absolute inset-[2px] bg-slate-900 rounded-lg group-hover:bg-slate-800 transition-colors" />
@@ -453,6 +581,36 @@ export const MyBookingsPage = () => {
                               Tải vé
                                 </span>
                             </button>
+                          )}
+                          
+                          {/* Nút đánh giá - hiển thị khi: trang_thai_dat_cho = 'da_thanh_toan' VÀ trang_thai_khoi_hanh = 'hoan_thanh' và chưa có review */}
+                          {booking.status === 'da_thanh_toan' && 
+                           booking.departure_status === 'hoan_thanh' && 
+                           booking.has_review !== true && (
+                            <button
+                              onClick={() => {
+                                setSelectedBooking(booking);
+                                setShowReviewForm(true);
+                              }}
+                              className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-300 shadow-lg shadow-amber-500/30 flex items-center gap-2"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                              </svg>
+                              Đánh giá
+                            </button>
+                          )}
+                          
+                          {/* Hiển thị trạng thái đã đánh giá */}
+                          {booking.status === 'da_thanh_toan' && 
+                           booking.departure_status === 'hoan_thanh' && 
+                           booking.has_review === true && (
+                            <div className="px-6 py-3 bg-emerald-500/20 border-2 border-emerald-500/30 text-emerald-400 font-semibold rounded-xl flex items-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Đã đánh giá
+                            </div>
                           )}
                           </div>
                         </div>
@@ -530,6 +688,33 @@ export const MyBookingsPage = () => {
         </div>
       </div>
       </section>
+
+      {/* Review Form Modal */}
+      {selectedBooking && (
+        <Modal
+          isOpen={showReviewForm}
+          onClose={() => {
+            setShowReviewForm(false);
+            setSelectedBooking(null);
+          }}
+        >
+          <div className="max-w-3xl mx-auto">
+            <ReviewForm
+              datChoId={selectedBooking.id}
+              tourTitle={selectedBooking.tour_title}
+              onSuccess={() => {
+                setShowReviewForm(false);
+                setSelectedBooking(null);
+                loadBookings(); // Reload để cập nhật
+              }}
+              onCancel={() => {
+                setShowReviewForm(false);
+                setSelectedBooking(null);
+              }}
+            />
+          </div>
+        </Modal>
+      )}
     </MainLayout>
   );
 };
