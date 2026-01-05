@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosInstance } from 'axios';
 import { tokenManager } from './tokenManager';
 // 'https://travia-backend-363518914287.asia-southeast1.run.app/api' || 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://travia-backend-363518914287.asia-southeast1.run.app/api' || 'http://localhost:3000/api';
 
 class ApiService {
   private axiosInstance: AxiosInstance;
