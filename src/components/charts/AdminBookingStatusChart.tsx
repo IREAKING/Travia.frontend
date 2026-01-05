@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { adminService } from '../../services/adminService';
 
 interface BookingStatus {
   trang_thai?: string;
@@ -36,29 +35,15 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export const AdminBookingStatusChart = () => {
-  const [statusData, setStatusData] = useState<BookingStatus[]>([]);
-  const [dayOfWeekData, setDayOfWeekData] = useState<BookingByDayOfWeek[]>([]);
+  const [statusData] = useState<BookingStatus[]>([]);
+  const [dayOfWeekData] = useState<BookingByDayOfWeek[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statusResponse, dayOfWeekResponse] = await Promise.all([
-          adminService.getBookingsByStatus().catch(() => []),
-          adminService.getBookingsByDayOfWeek().catch(() => [])
-        ]);
-        setStatusData(statusResponse || []);
-        setDayOfWeekData(dayOfWeekResponse || []);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch booking data:', err);
-        setError('Không thể tải dữ liệu đặt chỗ');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    // TODO: Implement getBookingsByStatus and getBookingsByDayOfWeek service functions
+    setLoading(false);
+    setError('Service functions not implemented');
   }, []);
 
   if (loading) {
@@ -136,7 +121,7 @@ export const AdminBookingStatusChart = () => {
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Pie Chart */}
           <div className="h-56 min-h-[224px]">
-            <ResponsiveContainer width="100%" height="100%" minHeight={224}>
+            <ResponsiveContainer width="100%" height={224}>
               <PieChart>
                 <Pie
                   data={pieData}
@@ -174,9 +159,9 @@ export const AdminBookingStatusChart = () => {
           </div>
 
           {/* Bar Chart - Day of Week */}
-          <div className="h-56">
+          <div style={{ width: '100%', height: '200px', minHeight: '200px' }}>
             <p className="text-xs text-slate-500 mb-3 text-center">Theo ngày trong tuần</p>
-            <ResponsiveContainer width="100%" height="90%" minHeight={200}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={barData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
                 <defs>
                   <linearGradient id="bookingBarGradient" x1="0" y1="0" x2="0" y2="1">

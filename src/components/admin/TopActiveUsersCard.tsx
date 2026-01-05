@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { adminService } from '../../services/adminService';
-import type { TopActiveUser } from '../../types';
+import type { AdminTopActiveUser } from '../../types';
 
 export const TopActiveUsersCard = () => {
-  const [data, setData] = useState<TopActiveUser[]>([]);
+  const [data, setData] = useState<AdminTopActiveUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -109,14 +109,14 @@ export const TopActiveUsersCard = () => {
             const rankStyle = getRankStyle(index);
             return (
               <div 
-                key={user.user_id || index} 
+                key={user.id || index} 
                 className={`flex items-center justify-between p-4 ${rankStyle.bg} rounded-2xl border ${rankStyle.border} transition-all duration-300 hover:scale-[1.02]`}
               >
                 <div className="flex items-center gap-4">
                   <div className="relative">
                     <div className="w-11 h-11 bg-gradient-to-br from-cyan-500/40 to-purple-500/40 rounded-xl flex items-center justify-center border border-white/20">
                       <span className="font-bold text-white">
-                            {(user.user_name || user.full_name)?.charAt(0)?.toUpperCase() || 'U'}
+                            {user.ho_ten?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
                     <span className="absolute -top-1 -right-1 text-sm">
@@ -130,7 +130,7 @@ export const TopActiveUsersCard = () => {
                     </span>
                   </div>
                   <div>
-                    <p className="font-semibold text-white">{user.user_name || user.full_name || 'Unknown'}</p>
+                    <p className="font-semibold text-white">{user.ho_ten || 'Unknown'}</p>
                     <p className="text-xs text-slate-400">
                       {user.email?.length > 20 ? user.email.substring(0, 20) + '...' : user.email || 'N/A'}
                     </p>
@@ -142,7 +142,7 @@ export const TopActiveUsersCard = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                     <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                      {user.booking_count}
+                      {user.so_booking}
                     </span>
                   </div>
                   <p className="text-xs text-slate-500">đặt chỗ</p>

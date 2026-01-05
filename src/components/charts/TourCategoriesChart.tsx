@@ -8,10 +8,9 @@ import {
 } from 'recharts';
 import { useEffect, useState } from 'react';
 import { supplierService } from '../../services/supplierService';
-// import type { SupplierTourStatsByStatus } from '../../types';
 import { LoadingSpinner } from '../common/Loading';
 
-const colors = ['#6366F1', '#A855F7', '#EC4899', '#3B82F6', '#10B981', '#F59E0B'];
+const colors = ['#6366F1', '#A855F7', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#14B8A6'];
 
 const TourCategoriesChart = () => {
   const [data, setData] = useState<{ name: string; value: number; color: string }[]>([]);
@@ -21,17 +20,16 @@ const TourCategoriesChart = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await supplierService.getTourStatsByStatus();
+        const result = await supplierService.getTourStatsByCategory();
         
         // Transform data for chart
-        const chartData = result.map((item, index) => {
-          const statusName = item.trang_thai === 'cong_bo' ? 'Đã công bố' :
-                            item.trang_thai === 'nhap' ? 'Nháp' :
-                            item.trang_thai === 'luu_tru' ? 'Lưu trữ' :
-                            'Khác';
+        const chartData = result
+          .filter((item) => item.tong_tour > 0) // Chỉ lấy danh mục có tour
+          .map((item, index) => {
+            const categoryName = item.ten_danh_muc || 'Chưa phân loại';
           return {
-            name: statusName,
-            value: item.tour_count,
+              name: categoryName,
+              value: item.tong_tour,
             color: colors[index % colors.length],
           };
         });
@@ -78,7 +76,7 @@ const TourCategoriesChart = () => {
               ))}
             </Pie>
           <Tooltip 
-            formatter={(value) => [`${value}%`, 'Tỷ lệ']}
+            formatter={(value) => [`${value} tour`, 'Số lượng']}
             contentStyle={{
               backgroundColor: '#1F2937',
               border: '1px solid rgba(255,255,255,0.1)',

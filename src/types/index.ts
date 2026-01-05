@@ -210,7 +210,67 @@ export interface RevenueByMonth {
 
 export interface RevenueByDay {
   date: string;
+  ngay?: string; // Backend field name
   revenue: number | string;
+  doanh_thu?: number | string; // Backend field name
+  so_booking?: number; // Backend field name
+  booking_count?: number; // Alternative field name
+}
+
+export interface AdminSupplierOption {
+  id: string; // UUID
+  ten: string;
+}
+
+export interface AdminDashboardOverviewByMonthAndYear {
+  tong_dat_cho: number;
+  so_don_da_huy: number;
+  doanh_thu: number | string;
+  so_chuyen_khoi_hanh: number;
+  tong_luong_khach: number;
+  so_danh_gia_moi: number;
+  diem_trung_binh: number;
+}
+
+export interface AdminChartRevenueTrend {
+  ngay: string;
+  tong_so_don: number;
+  doanh_thu_ngay: number | string;
+  tong_khach_ngay: number;
+}
+
+export interface AdminChartCategoryDistribution {
+  ten_danh_muc: string;
+  so_luong_dat: number;
+  tong_doanh_thu: number | string;
+}
+
+export interface AdminChartTopSuppliers {
+  ten_nha_cung_cap: string;
+  so_don_hang: number;
+  doanh_thu_dat_duoc: number | string;
+}
+
+export interface AdminChartBookingStatusStats {
+  trang_thai: string;
+  so_luong: number;
+  gia_tri_uoc_tinh: number | string;
+}
+
+export interface AdminCustomerGrowthMonthlyReport {
+  nam: number;
+  thang: number;
+  khach_moi_thang_nay: number;
+  khach_moi_thang_truoc: number | string;
+  phan_tram_tang_truong: number | string;
+}
+
+export interface AdminTopActiveUser {
+  id: string;
+  ho_ten: string;
+  email: string;
+  so_booking: number;
+  tong_chi_tieu: number | string;
 }
 
 export interface RevenueByYear {
@@ -297,10 +357,20 @@ export interface TopActiveUser {
 
 // Tour Statistics Types
 export interface TopBookedTour {
-  tour_id: number;
-  tour_title: string;
-  booking_count: number;
-  total_revenue: number | string;
+  id: number;
+  tieu_de: string;
+  gia_nguoi_lon: number | string;
+  ten_nha_cung_cap: string;
+  ten_danh_muc: string;
+  so_booking: number;
+  tong_doanh_thu: number | string;
+  diem_trung_binh: number;
+  anh_chinh: string;
+  // Legacy fields for backward compatibility
+  tour_id?: number;
+  tour_title?: string;
+  booking_count?: number;
+  total_revenue?: number | string;
 }
 
 export interface ToursCreatedByMonth {
@@ -489,6 +559,7 @@ export interface SupplierTopTour {
   total_reviews: number;
 }
 
+
 export interface SupplierBookingStatsByStatus {
   trang_thai: string | null;
   booking_count: number;
@@ -506,22 +577,60 @@ export interface SupplierTourStatsByStatus {
   total_revenue: number | string;
 }
 
+export interface SupplierTourStatsByCategory {
+  danh_muc_id: number | null;
+  ten_danh_muc: string | null;
+  tong_tour: number;
+  tour_cong_bo: number;
+  tour_noi_bat: number;
+  gia_trung_binh: number | string;
+}
+
 export interface SupplierRevenueChart {
-  date: string;
+  period?: string;
+  date?: string;
   revenue: number | string;
   booking_count: number;
   customer_count: number;
 }
 
 export interface SupplierCustomerStats {
-  customer_id: string;
-  customer_name: string;
-  customer_email: string;
-  total_bookings: number;
-  total_spent: number | string;
-  total_passengers: number;
-  first_booking_date: string | null;
-  last_booking_date: string | null;
+  khach_hang_id: string;
+  ten_khach_hang: string;
+  email_khach_hang: string;
+  so_dat_cho: number;
+  tong_tien: number | string;
+  so_nguoi_lon_va_tre_em: number;
+  ngay_dat_dau_tien: string | null;
+  ngay_dat_cuoi_cung: string | null;
+}
+
+export interface SupplierReviewStatistics {
+  so_luong_danh_gia: number;
+  diem_trung_binh: number;
+  so_luong_5_sao: number;
+  so_luong_4_sao: number;
+  so_luong_3_sao: number;
+  so_luong_2_sao: number;
+  so_luong_1_sao: number;
+}
+
+export interface SupplierDetailedReview {
+  danh_gia_id: number;
+  tieu_de: string | null;
+  noi_dung: string | null;
+  diem_danh_gia: number;
+  hinh_anh_dinh_kem: string[] | null;
+  ngay_tao: string;
+  nguoi_dung_ten: string | null;
+  nguoi_dung_email: string | null;
+  tour_id: number;
+  tour_tieu_de: string | null;
+}
+
+export interface SupplierOptionTour {
+  id: number;
+  tieu_de: string | null;
 }
 
 export interface SupplierCancellationAnalysis {
@@ -530,6 +639,17 @@ export interface SupplierCancellationAnalysis {
   cancellation_rate: number;
   lost_revenue: number | string;
   cancelled_last_30_days: number;
+}
+
+export interface SupplierBookingStatsByStatusDetailed {
+  ngay_trong_thang: string;
+  trang_thai: {
+    trang_thai_dat_cho: string;
+    valid: boolean;
+  } | null;
+  so_dat_cho: number;
+  tong_tien: number | string;
+  tong_khach: number;
 }
 
 export interface SupplierRatingAnalysis {

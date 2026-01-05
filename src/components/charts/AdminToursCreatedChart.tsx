@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { adminService } from '../../services/adminService';
 
 interface ToursCreatedByMonth {
   month: number | string;
@@ -9,24 +8,14 @@ interface ToursCreatedByMonth {
 }
 
 export const AdminToursCreatedChart = () => {
-  const [data, setData] = useState<ToursCreatedByMonth[]>([]);
+  const [data] = useState<ToursCreatedByMonth[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await adminService.getToursCreatedByMonth();
-        setData(response || []);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch tours created data:', err);
-        setError('Không thể tải dữ liệu tour được tạo');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    // TODO: Implement getToursCreatedByMonth service function
+    setLoading(false);
+    setError('Service function not implemented');
   }, []);
 
   if (loading) {
@@ -92,8 +81,8 @@ export const AdminToursCreatedChart = () => {
           </div>
         </div>
 
-        <div className="h-64 min-h-[256px]">
-          <ResponsiveContainer width="100%" height="100%" minHeight={256}>
+        <div style={{ width: '100%', height: '256px', minHeight: '256px' }}>
+          <ResponsiveContainer width="100%" height={256}>
             <AreaChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="toursCreatedGradient" x1="0" y1="0" x2="0" y2="1">

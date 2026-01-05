@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { adminService } from '../../services/adminService';
 
 interface TourPriceDistribution {
   khoang_gia?: string;
@@ -12,24 +11,14 @@ interface TourPriceDistribution {
 const COLORS = ['#06b6d4', '#14b8a6', '#10b981', '#22c55e', '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444'];
 
 export const AdminTourPriceChart = () => {
-  const [data, setData] = useState<TourPriceDistribution[]>([]);
+  const [data] = useState<TourPriceDistribution[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await adminService.getTourPriceDistribution();
-        setData(response || []);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch tour price distribution:', err);
-        setError('Không thể tải dữ liệu phân bố giá');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    // TODO: Implement getTourPriceDistribution service function
+    setLoading(false);
+    setError('Service function not implemented');
   }, []);
 
   if (loading) {
@@ -96,7 +85,7 @@ export const AdminTourPriceChart = () => {
         </div>
 
         <div className="h-64 min-h-[256px]">
-          <ResponsiveContainer width="100%" height="100%" minHeight={256}>
+          <ResponsiveContainer width="100%" height={256}>
             <BarChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
               <XAxis 

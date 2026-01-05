@@ -246,6 +246,60 @@ export const PaymentPage = () => {
 
     setLoading(true);
     try {
+      // First, add passengers to booking
+      if (!id) {
+        showToast('Không tìm thấy thông tin đặt tour', 'error');
+        return;
+      }
+
+      const bookingId = parseInt(id);
+      if (isNaN(bookingId)) {
+        showToast('Mã đặt tour không hợp lệ', 'error');
+        return;
+      }
+
+      // Convert passengers to the format expected by backend
+      const passengersToAdd = formData.passengers.map(p => {
+        // Map loai_khach: 'em_be' -> 'tre_em' (backend doesn't support 'em_be')
+        let loaiKhach: 'nguoi_lon' | 'tre_em' = p.loai_khach === 'em_be' ? 'tre_em' : 
+          (p.loai_khach === 'nguoi_lon' ? 'nguoi_lon' : 'tre_em');
+        
+        // Map gioi_tinh from Payment format to backend format
+        let gioiTinh: 'nam' | 'nu' | 'khac' | undefined = undefined;
+        if (p.gioi_tinh) {
+          if (p.gioi_tinh.toLowerCase() === 'nam') gioiTinh = 'nam';
+          else if (p.gioi_tinh.toLowerCase() === 'nữ' || p.gioi_tinh.toLowerCase() === 'nu') gioiTinh = 'nu';
+          else gioiTinh = 'khac';
+        }
+
+        return {
+          dat_cho_id: bookingId,
+          ho_ten: p.ho_ten,
+          ngay_sinh: p.ngay_sinh,
+          loai_khach: loaiKhach,
+          gioi_tinh: gioiTinh,
+          so_giay_to_tuy_thanh: p.so_ho_chieu || undefined,
+          quoc_tich: p.quoc_tich || undefined,
+          ghi_chu: p.ghi_chu || undefined,
+        };
+      });
+
+      console.log('Adding passengers to booking:', passengersToAdd);
+      
+      // Add passengers to booking
+      try {
+        await bookingService.addPassengers(passengersToAdd);
+        console.log('Passengers added successfully');
+        showToast('Đã cập nhật thông tin hành khách', 'success');
+      } catch (passengerError: any) {
+        console.error('Error adding passengers:', passengerError);
+        // If passengers already exist or other error, log but continue with payment
+        if (passengerError?.response?.status !== 400) {
+          showToast('Có lỗi khi cập nhật thông tin hành khách, nhưng vẫn tiếp tục thanh toán', 'warning');
+        }
+        // Continue with payment even if adding passengers fails (might already be added)
+      }
+
       // Process payment based on method
       if (formData.phuong_thuc_thanh_toan === 'vnpay') {
         // Handle VNPay payment

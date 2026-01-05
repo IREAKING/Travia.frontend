@@ -3,117 +3,79 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { SupplierSidebar } from '../../components/layout/SupplierSidebar';
 import { LoadingSpinner } from '../../components/common/Loading';
 import { useToast } from '../../hooks/useToast';
-
-interface Review {
-  id: number;
-  tour_id: number;
-  tour_tieu_de: string;
-  nguoi_dung_id: number;
-  nguoi_dung_ten: string;
-  nguoi_dung_avatar?: string;
-  diem_so: number;
-  noi_dung: string;
-  ngay_tao: string;
-  tra_loi?: string;
-  ngay_tra_loi?: string;
-}
+import { supplierService } from '../../services/supplierService';
+import type { 
+  SupplierReviewStatistics, 
+  SupplierDetailedReview, 
+  SupplierOptionTour 
+} from '../../types';
 
 type RatingFilter = 'all' | '5' | '4' | '3' | '2' | '1';
 
 export const SupplierReviewsPage = () => {
   const { showToast } = useToast();
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<SupplierDetailedReview[]>([]);
+  const [statistics, setStatistics] = useState<SupplierReviewStatistics | null>(null);
+  const [optionTours, setOptionTours] = useState<SupplierOptionTour[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all');
+  const [tourFilter, setTourFilter] = useState<number | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState('');
-  const [replyingTo, setReplyingTo] = useState<number | null>(null);
-  const [replyText, setReplyText] = useState('');
 
-  // Mock data
-  const mockReviews: Review[] = [
-    {
-      id: 1,
-      tour_id: 101,
-      tour_tieu_de: 'Du lịch Đà Nẵng 3N2Đ',
-      nguoi_dung_id: 201,
-      nguoi_dung_ten: 'Nguyễn Văn A',
-      diem_so: 5,
-      noi_dung: 'Tour rất tuyệt vời! Hướng dẫn viên nhiệt tình, khách sạn sạch sẽ, lịch trình hợp lý. Gia đình tôi rất hài lòng!',
-      ngay_tao: '2024-11-10T14:30:00Z'
-    },
-    {
-      id: 2,
-      tour_id: 102,
-      tour_tieu_de: 'Phú Quốc 4N3Đ',
-      nguoi_dung_id: 202,
-      nguoi_dung_ten: 'Trần Thị B',
-      diem_so: 4,
-      noi_dung: 'Tour tốt nhưng lịch trình hơi gấp. Nên dành thêm thời gian ở mỗi địa điểm.',
-      ngay_tao: '2024-11-08T10:20:00Z',
-      tra_loi: 'Cảm ơn bạn đã góp ý! Chúng tôi sẽ cân nhắc điều chỉnh lịch trình cho phù hợp hơn.',
-      ngay_tra_loi: '2024-11-09T09:00:00Z'
-    },
-    {
-      id: 3,
-      tour_id: 103,
-      tour_tieu_de: 'Sapa 3N2Đ',
-      nguoi_dung_id: 203,
-      nguoi_dung_ten: 'Lê Văn C',
-      diem_so: 5,
-      noi_dung: 'Phong cảnh đẹp tuyệt vời! Đội ngũ tổ chức chuyên nghiệp, nhiệt tình. Sẽ quay lại lần sau.',
-      ngay_tao: '2024-11-05T16:45:00Z',
-      tra_loi: 'Cảm ơn bạn rất nhiều! Rất vui khi bạn hài lòng với dịch vụ của chúng tôi.',
-      ngay_tra_loi: '2024-11-06T08:30:00Z'
-    },
-    {
-      id: 4,
-      tour_id: 101,
-      tour_tieu_de: 'Du lịch Đà Nẵng 3N2Đ',
-      nguoi_dung_id: 204,
-      nguoi_dung_ten: 'Phạm Thị D',
-      diem_so: 3,
-      noi_dung: 'Tour tạm ổn. Một số dịch vụ chưa được như mong đợi.',
-      ngay_tao: '2024-11-03T12:00:00Z'
-    }
-  ];
+  useEffect(() => {
+    loadOptionTours();
+    loadStatistics();
+  }, []);
 
   useEffect(() => {
     loadReviews();
-  }, []);
+  }, [ratingFilter, tourFilter]);
+
+  const loadOptionTours = async () => {
+    try {
+      const result = await supplierService.getOptionTours();
+      setOptionTours(result);
+    } catch (error) {
+      console.error('Error loading option tours:', error);
+      showToast('Không thể tải danh sách tour', 'error');
+    }
+  };
+
+  const loadStatistics = async () => {
+    try {
+      setLoadingStats(true);
+      const tourId = tourFilter || undefined;
+      const result = await supplierService.getReviewStatistics(tourId);
+      setStatistics(result);
+    } catch (error) {
+      console.error('Error loading review statistics:', error);
+      showToast('Không thể tải thống kê đánh giá', 'error');
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const loadReviews = async () => {
     try {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setReviews(mockReviews);
+      const rating = ratingFilter === 'all' ? undefined : parseInt(ratingFilter);
+      const tourId = tourFilter;
+      const result = await supplierService.getDetailedReviews(rating, tourId);
+      setReviews(Array.isArray(result) ? result : []);
     } catch (error) {
       console.error('Error loading reviews:', error);
       showToast('Không thể tải danh sách đánh giá', 'error');
+      setReviews([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleReply = async (reviewId: number) => {
-    if (!replyText.trim()) {
-      showToast('Vui lòng nhập nội dung trả lời', 'error');
-      return;
-    }
+  useEffect(() => {
+    loadStatistics();
+  }, [tourFilter]);
 
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setReviews(prev => prev.map(review => 
-        review.id === reviewId 
-          ? { ...review, tra_loi: replyText, ngay_tra_loi: new Date().toISOString() }
-          : review
-      ));
-      showToast('Trả lời đánh giá thành công!', 'success');
-      setReplyingTo(null);
-      setReplyText('');
-    } catch (error) {
-      showToast('Có lỗi xảy ra khi trả lời', 'error');
-    }
-  };
 
   const renderStars = (rating: number, size: 'sm' | 'md' | 'lg' = 'md') => {
     const sizeClasses = {
@@ -138,27 +100,34 @@ export const SupplierReviewsPage = () => {
     );
   };
 
-  const filteredReviews = reviews.filter(review => {
-    const matchesRating = ratingFilter === 'all' || review.diem_so === parseInt(ratingFilter);
-    const matchesSearch = review.tour_tieu_de.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         review.nguoi_dung_ten.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         review.noi_dung.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesRating && matchesSearch;
+  const filteredReviews = (Array.isArray(reviews) ? reviews : []).filter(review => {
+    const matchesSearch = 
+      (review.tour_tieu_de?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (review.nguoi_dung_ten?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (review.noi_dung?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (review.tieu_de?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
+    return matchesSearch;
   });
 
-  const averageRating = reviews.length > 0 
-    ? (reviews.reduce((sum, r) => sum + r.diem_so, 0) / reviews.length).toFixed(1)
+  const averageRating = statistics 
+    ? statistics.diem_trung_binh.toFixed(1)
     : '0.0';
 
-  const ratingDistribution = {
-    5: reviews.filter(r => r.diem_so === 5).length,
-    4: reviews.filter(r => r.diem_so === 4).length,
-    3: reviews.filter(r => r.diem_so === 3).length,
-    2: reviews.filter(r => r.diem_so === 2).length,
-    1: reviews.filter(r => r.diem_so === 1).length,
+  const ratingDistribution = statistics ? {
+    5: statistics.so_luong_5_sao,
+    4: statistics.so_luong_4_sao,
+    3: statistics.so_luong_3_sao,
+    2: statistics.so_luong_2_sao,
+    1: statistics.so_luong_1_sao,
+  } : {
+    5: 0,
+    4: 0,
+    3: 0,
+    2: 0,
+    1: 0,
   };
 
-  const repliedCount = reviews.filter(r => r.tra_loi).length;
+  const totalReviews = statistics?.so_luong_danh_gia || 0;
 
   if (loading) {
     return (
@@ -204,9 +173,17 @@ export const SupplierReviewsPage = () => {
       <div className="grid md:grid-cols-4 gap-6 mb-8">
         <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 p-6 hover:shadow-cyan-500/20 transition-all">
           <div className="text-center">
+            {loadingStats ? (
+              <div className="h-20 flex items-center justify-center">
+                <LoadingSpinner size="sm" />
+              </div>
+            ) : (
+              <>
             <div className="text-5xl font-bold text-cyan-400 mb-2">{averageRating}</div>
             {renderStars(parseFloat(averageRating), 'lg')}
-            <p className="text-sm text-gray-400 mt-2">{reviews.length} đánh giá</p>
+                <p className="text-sm text-gray-400 mt-2">{totalReviews} đánh giá</p>
+              </>
+            )}
           </div>
         </div>
 
@@ -214,7 +191,11 @@ export const SupplierReviewsPage = () => {
           <div className="flex items-center justify-between mb-2">
             <div>
               <p className="text-sm text-gray-400 mb-1">Tổng đánh giá</p>
-              <p className="text-3xl font-bold text-cyan-400">{reviews.length}</p>
+              {loadingStats ? (
+                <div className="h-8 w-16 bg-cyan-500/20 rounded animate-pulse"></div>
+              ) : (
+                <p className="text-3xl font-bold text-cyan-400">{totalReviews}</p>
+              )}
             </div>
             <div className="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center border border-cyan-400/30">
               <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,12 +208,16 @@ export const SupplierReviewsPage = () => {
         <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 p-6 hover:shadow-purple-500/20 transition-all">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <p className="text-sm text-gray-400 mb-1">Đã trả lời</p>
-              <p className="text-3xl font-bold text-purple-400">{repliedCount}</p>
+              <p className="text-sm text-gray-400 mb-1">5 sao</p>
+              {loadingStats ? (
+                <div className="h-8 w-16 bg-purple-500/20 rounded animate-pulse"></div>
+              ) : (
+                <p className="text-3xl font-bold text-purple-400">{ratingDistribution[5]}</p>
+              )}
             </div>
             <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-400/30">
-              <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg className="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
             </div>
           </div>
@@ -241,12 +226,16 @@ export const SupplierReviewsPage = () => {
         <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 p-6 hover:shadow-pink-500/20 transition-all">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <p className="text-sm text-gray-400 mb-1">Chờ trả lời</p>
-              <p className="text-3xl font-bold text-pink-400">{reviews.length - repliedCount}</p>
+              <p className="text-sm text-gray-400 mb-1">1 sao</p>
+              {loadingStats ? (
+                <div className="h-8 w-16 bg-pink-500/20 rounded animate-pulse"></div>
+              ) : (
+                <p className="text-3xl font-bold text-pink-400">{ratingDistribution[1]}</p>
+              )}
             </div>
             <div className="w-12 h-12 bg-pink-500/20 rounded-lg flex items-center justify-center border border-pink-400/30">
-              <svg className="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg className="w-6 h-6 text-pink-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
             </div>
           </div>
@@ -260,7 +249,7 @@ export const SupplierReviewsPage = () => {
           <div className="space-y-3">
             {[5, 4, 3, 2, 1].map((rating) => {
               const count = ratingDistribution[rating as keyof typeof ratingDistribution];
-              const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+              const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
               
               return (
                 <div key={rating} className="flex items-center gap-3">
@@ -305,6 +294,23 @@ export const SupplierReviewsPage = () => {
                   className="pl-10 pr-4 py-3 w-full bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white placeholder-gray-500 transition-all"
                 />
               </div>
+            </div>
+
+            {/* Tour Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Lọc theo tour</label>
+              <select
+                value={tourFilter || ''}
+                onChange={(e) => setTourFilter(e.target.value ? parseInt(e.target.value) : undefined)}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white transition-all"
+              >
+                <option value="">Tất cả tour</option>
+                {optionTours.map((tour) => (
+                  <option key={tour.id} value={tour.id} className="bg-slate-800">
+                    {tour.tieu_de || `Tour #${tour.id}`}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Rating Filter */}
@@ -361,18 +367,18 @@ export const SupplierReviewsPage = () => {
       ) : (
         <div className="space-y-6">
           {filteredReviews.map((review) => (
-            <div key={review.id} className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6 hover:shadow-cyan-500/20 transition-all">
+            <div key={review.danh_gia_id} className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6 hover:shadow-cyan-500/20 transition-all">
               {/* Review Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-cyan-500/30 to-purple-500/30 rounded-full flex items-center justify-center text-cyan-300 font-semibold text-lg border border-cyan-400/30">
-                    {review.nguoi_dung_ten.charAt(0)}
+                    {review.nguoi_dung_ten?.charAt(0) || 'U'}
                   </div>
                   <div>
-                    <h4 className="font-semibold text-white">{review.nguoi_dung_ten}</h4>
-                    <p className="text-sm text-gray-400">{review.tour_tieu_de}</p>
+                    <h4 className="font-semibold text-white">{review.nguoi_dung_ten || 'Khách hàng'}</h4>
+                    <p className="text-sm text-gray-400">{review.tour_tieu_de || `Tour #${review.tour_id}`}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      {renderStars(review.diem_so, 'sm')}
+                      {renderStars(review.diem_danh_gia, 'sm')}
                       <span className="text-xs text-gray-400">
                         {new Date(review.ngay_tao).toLocaleDateString('vi-VN')}
                       </span>
@@ -381,65 +387,36 @@ export const SupplierReviewsPage = () => {
                 </div>
               </div>
 
+              {/* Review Title */}
+              {review.tieu_de && (
+                <div className="mb-2">
+                  <h5 className="font-medium text-white">{review.tieu_de}</h5>
+                </div>
+              )}
+
               {/* Review Content */}
               <div className="mb-4">
-                <p className="text-gray-300">{review.noi_dung}</p>
+                <p className="text-gray-300">{review.noi_dung || 'Không có nội dung'}</p>
               </div>
 
-              {/* Reply Section */}
-              {review.tra_loi ? (
-                <div className="bg-cyan-500/10 rounded-lg p-4 border-l-4 border-cyan-500">
-                  <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                    </svg>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-cyan-300 mb-1">Phản hồi của bạn</p>
-                      <p className="text-sm text-cyan-200">{review.tra_loi}</p>
-                      <p className="text-xs text-cyan-400 mt-2">
-                        {new Date(review.ngay_tra_loi!).toLocaleDateString('vi-VN')}
-                      </p>
-                    </div>
-                  </div>
+              {/* Review Images */}
+              {review.hinh_anh_dinh_kem && review.hinh_anh_dinh_kem.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {review.hinh_anh_dinh_kem.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`Review image ${idx + 1}`}
+                      className="w-20 h-20 object-cover rounded-lg border border-white/10"
+                    />
+                  ))}
                 </div>
-              ) : replyingTo === review.id ? (
-                <div className="space-y-3">
-                  <textarea
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Nhập phản hồi của bạn..."
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white placeholder-gray-500 transition-all"
-                    rows={3}
-                  />
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleReply(review.id)}
-                      className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-lg hover:from-cyan-400 hover:to-purple-400 transition-all shadow-lg shadow-cyan-500/25"
-                    >
-                      Gửi phản hồi
-                    </button>
-                    <button
-                      onClick={() => {
-                        setReplyingTo(null);
-                        setReplyText('');
-                      }}
-                      className="px-4 py-2 border border-white/20 text-gray-300 rounded-lg hover:bg-white/10 hover:text-white transition-colors"
-                    >
-                      Hủy
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setReplyingTo(review.id)}
-                  className="text-cyan-400 hover:text-cyan-300 text-sm font-medium flex items-center gap-1 transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                  </svg>
-                  Trả lời
-                </button>
               )}
+
+              {/* Reply Section - Disabled for now as backend doesn't support it */}
+              <div className="text-xs text-gray-500 italic">
+                Tính năng trả lời đánh giá sẽ được cập nhật sau
+              </div>
             </div>
           ))}
         </div>

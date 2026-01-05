@@ -17,7 +17,11 @@ import type {
   SupplierUpcomingDeparture,
   SupplierRecentBooking,
   SupplierMonthlyComparison,
-  SupplierBookingAdvanced
+  SupplierBookingAdvanced,
+  SupplierTourStatsByCategory,
+  SupplierReviewStatistics,
+  SupplierDetailedReview,
+  SupplierOptionTour
 } from '../types';
 
 export const supplierService = {
@@ -208,10 +212,11 @@ export const supplierService = {
 
   // Lấy thống kê booking theo trạng thái
   getBookingStatsByStatus: async (
+    period: 'day' | 'week' | 'month' = 'day',
     startDate?: string,
     endDate?: string
   ): Promise<SupplierBookingStatsByStatus[]> => {
-    const params: any = {};
+    const params: any = { period };
     if (startDate) params.start_date = startDate;
     if (endDate) params.end_date = endDate;
     const response = await api.get<ApiResponse<SupplierBookingStatsByStatus[]>>('/supplier/dashboard/booking-stats', { params });
@@ -221,6 +226,12 @@ export const supplierService = {
   // Lấy thống kê tour theo trạng thái
   getTourStatsByStatus: async (): Promise<SupplierTourStatsByStatus[]> => {
     const response = await api.get<ApiResponse<SupplierTourStatsByStatus[]>>('/supplier/dashboard/tour-stats');
+    return response.data.data;
+  },
+
+  // Lấy thống kê tour theo danh mục
+  getTourStatsByCategory: async (): Promise<SupplierTourStatsByCategory[]> => {
+    const response = await api.get<ApiResponse<SupplierTourStatsByCategory[]>>('/supplier/dashboard/tour-stats-by-category');
     return response.data.data;
   },
 
@@ -312,5 +323,28 @@ export const supplierService = {
       data: response.data.data,
       total_count: (response.data as any).total || 0,
     };
+  },
+
+  // Lấy thống kê đánh giá
+  getReviewStatistics: async (tourId?: number): Promise<SupplierReviewStatistics> => {
+    const params: any = {};
+    if (tourId) params.tour_id = tourId;
+    const response = await api.get<ApiResponse<SupplierReviewStatistics>>('/supplier/dashboard/review-statistics', { params });
+    return response.data.data;
+  },
+
+  // Lấy danh sách đánh giá chi tiết
+  getDetailedReviews: async (rating?: number, tourId?: number): Promise<SupplierDetailedReview[]> => {
+    const params: any = {};
+    if (rating) params.rating = rating;
+    if (tourId) params.tour_id = tourId;
+    const response = await api.get<ApiResponse<SupplierDetailedReview[]>>('/supplier/dashboard/reviews', { params });
+    return Array.isArray(response.data.data) ? response.data.data : [];
+  },
+
+  // Lấy danh sách tour options
+  getOptionTours: async (): Promise<SupplierOptionTour[]> => {
+    const response = await api.get<ApiResponse<SupplierOptionTour[]>>('/supplier/dashboard/options-tour');
+    return Array.isArray(response.data.data) ? response.data.data : [];
   }
 };

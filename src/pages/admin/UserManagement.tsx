@@ -4,6 +4,8 @@ import { AdminSidebar } from '../../components/layout/AdminSidebar';
 import { LoadingSpinner } from '../../components/common/Loading';
 import { useToast } from '../../hooks/useToast';
 import { formatCurrency } from '../../utils/formatters';
+import { AdminCustomerGrowthChart } from '../../components/charts/AdminCustomerGrowthChart';
+import { AdminTopActiveUsersChart } from '../../components/charts/AdminTopActiveUsersChart';
 
 type UserRole = 'all' | 'khach_hang' | 'nha_cung_cap' | 'quan_tri';
 type UserStatus = 'all' | 'active' | 'inactive' | 'blocked';
@@ -266,6 +268,12 @@ export const UserManagementPage = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 gap-6 mb-8">
+        <AdminCustomerGrowthChart />
+        <AdminTopActiveUsersChart />
       </div>
 
       {/* Stats Cards */}

@@ -89,8 +89,8 @@ export const AdminTopToursChart = () => {
           </div>
         </div>
 
-        <div className="h-64 min-h-[256px]">
-          <ResponsiveContainer width="100%" height="100%" minHeight={256}>
+        <div style={{ width: '100%', height: '256px', minHeight: '256px' }}>
+          <ResponsiveContainer width="100%" height={256}>
             <BarChart 
               data={formattedData} 
               layout="vertical"

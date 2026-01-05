@@ -8,7 +8,7 @@ interface ModalProps {
   showCloseButton?: boolean;
 }
 
-export const Modal = ({ isOpen, onClose, title, children, showCloseButton = true }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, children, showCloseButton = true }: ModalProps) => {
   // Close on Escape key and prevent background scroll
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

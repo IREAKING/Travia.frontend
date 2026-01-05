@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { adminService } from '../../services/adminService';
 import type { RecentBooking } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 
@@ -20,24 +19,14 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export const RecentBookingsTable = () => {
-  const [data, setData] = useState<RecentBooking[]>([]);
+  const [data] = useState<RecentBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await adminService.getRecentBookings(10);
-        setData(response || []);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch recent bookings:', err);
-        setError('Không thể tải dữ liệu đặt chỗ');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    // TODO: Implement getRecentBookings service function
+    setLoading(false);
+    setError('Service function not implemented');
   }, []);
 
   if (loading) {

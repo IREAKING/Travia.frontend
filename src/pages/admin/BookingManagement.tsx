@@ -3,7 +3,6 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { AdminSidebar } from '../../components/layout/AdminSidebar';
 import { LoadingSpinner } from '../../components/common/Loading';
 import { useToast } from '../../hooks/useToast';
-import { adminService } from '../../services/adminService';
 import { formatCurrency } from '../../utils/formatters';
 import type { RecentBooking } from '../../types';
 
@@ -50,8 +49,11 @@ export const BookingManagementPage = () => {
   const loadBookings = async () => {
     try {
       setLoading(true);
-      const data = await adminService.getRecentBookings(100);
-      setBookings(data || []);
+      // TODO: Implement getRecentBookings service function
+      // const data = await adminService.getRecentBookings(100);
+      // setBookings(data || []);
+      setBookings([]);
+      showToast('Service function not implemented', 'error');
     } catch (error) {
       console.error('Error loading bookings:', error);
       showToast('Không thể tải danh sách đặt chỗ', 'error');

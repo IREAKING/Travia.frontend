@@ -1,18 +1,35 @@
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { adminService } from '../../services/adminService';
-import type { RevenueByDay } from '../../types';
+import type { RevenueByDay, AdminSupplierOption } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 
 export const AdminRevenueChart = () => {
   const [data, setData] = useState<RevenueByDay[]>([]);
+  const [supplierOptions, setSupplierOptions] = useState<AdminSupplierOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
+  const [supplierId, setSupplierId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchSupplierOptions = async () => {
+      try {
+        const options = await adminService.getSupplierOptions();
+        setSupplierOptions(options);
+      } catch (err) {
+        console.error('Failed to fetch supplier options:', err);
+      }
+    };
+    fetchSupplierOptions();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await adminService.getRevenueByDay();
+        setLoading(true);
+        const response = await adminService.getRevenueByDay(year, month, supplierId);
         setData(response || []);
         setError(null);
       } catch (err) {
@@ -23,13 +40,19 @@ export const AdminRevenueChart = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [year, month, supplierId]);
 
-  const formattedData = data.map(item => ({
-    ...item,
-    name: item.date ? new Date(item.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }) : '',
-    revenue: typeof item.revenue === 'string' ? parseFloat(item.revenue) : item.revenue
-  }));
+  const formattedData = data.map(item => {
+    const dateStr = item.date || item.ngay;
+    const revenueValue = item.revenue || item.doanh_thu || 0;
+    const revenueNum = typeof revenueValue === 'string' ? parseFloat(revenueValue) : revenueValue;
+    
+    return {
+      ...item,
+      name: dateStr ? new Date(dateStr).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }) : '',
+      revenue: isNaN(revenueNum) ? 0 : revenueNum
+    };
+  });
 
   const totalRevenue = formattedData.reduce((sum, item) => sum + (item.revenue || 0), 0);
 
@@ -77,7 +100,7 @@ export const AdminRevenueChart = () => {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Doanh Thu 30 Ngày</h3>
+              <h3 className="text-lg font-semibold text-white">Doanh Thu Theo Ngày</h3>
               <p className="text-sm text-slate-400">Theo dõi doanh thu hàng ngày</p>
             </div>
           </div>
@@ -85,13 +108,55 @@ export const AdminRevenueChart = () => {
             <p className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               {formatCurrency(totalRevenue, 'VND')}
             </p>
-            <p className="text-xs text-slate-500">Tổng 30 ngày</p>
+              <p className="text-xs text-slate-500">Tổng doanh thu</p>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Năm</label>
+            <input
+              type="number"
+              value={year}
+              onChange={(e) => setYear(parseInt(e.target.value) || new Date().getFullYear())}
+              min="2020"
+              max={new Date().getFullYear() + 1}
+              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Tháng</label>
+            <select
+              value={month}
+              onChange={(e) => setMonth(parseInt(e.target.value))}
+              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+            >
+              <option value="0">Tất cả</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(m => (
+                <option key={m} value={m} className="bg-slate-800">Tháng {m}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Nhà cung cấp</label>
+            <select
+              value={supplierId || ''}
+              onChange={(e) => setSupplierId(e.target.value || undefined)}
+              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+            >
+              <option value="" className="bg-slate-800">Tất cả</option>
+              {supplierOptions.map(supplier => (
+                <option key={supplier.id} value={supplier.id} className="bg-slate-800">{supplier.ten}</option>
+              ))}
+            </select>
           </div>
         </div>
         
-        <div className="h-64 min-h-[256px]">
-          <ResponsiveContainer width="100%" height="100%" minHeight={256}>
-            <AreaChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        {formattedData.length > 0 ? (
+          <div style={{ width: '100%', height: '256px', minHeight: '256px' }}>
+            <ResponsiveContainer width="100%" height={256}>
+              <AreaChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/>
@@ -145,6 +210,11 @@ export const AdminRevenueChart = () => {
             </AreaChart>
           </ResponsiveContainer>
         </div>
+        ) : (
+          <div className="h-64 min-h-[256px] w-full flex items-center justify-center bg-white/5 rounded-lg border border-white/10">
+            <p className="text-gray-400">Không có dữ liệu để hiển thị</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -16,10 +16,10 @@ import { useToast } from '../../hooks/useToast';
 
 // Lazy load chart components để giảm bundle size
 const RevenueChart = lazy(() => import('../../components/charts/RevenueChart').then(module => ({ default: module.RevenueChart })));
+const CustomerStatsChart = lazy(() => import('../../components/charts/CustomerStatsChart').then(module => ({ default: module.CustomerStatsChart })));
 const TourCategoriesChart = lazy(() => import('../../components/charts/TourCategoriesChart').then(module => ({ default: module.TourCategoriesChart })));
-const BookingsChart = lazy(() => import('../../components/charts/BookingsChart').then(module => ({ default: module.BookingsChart })));
+const SupplierBookingStatsChart = lazy(() => import('../../components/charts/SupplierBookingStatsChart').then(module => ({ default: module.SupplierBookingStatsChart })));
 const TourPerformanceChart = lazy(() => import('../../components/charts/TourPerformanceChart').then(module => ({ default: module.TourPerformanceChart })));
-const RevenueTrendChart = lazy(() => import('../../components/charts/RevenueTrendChart').then(module => ({ default: module.RevenueTrendChart })));
 
 export const SupplierDashboard = () => {
   const { user } = useAuth();
@@ -208,9 +208,8 @@ export const SupplierDashboard = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> {/* Close header section's <div> */}
 
-      <div>
         {/* Stats Cards */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           <div className="bg-gradient-to-br from-indigo-500/20 to-indigo-600/20 backdrop-blur-xl rounded-xl p-6 border border-indigo-500/30 shadow-lg hover:shadow-indigo-500/20 transition-all duration-300">
@@ -312,28 +311,34 @@ export const SupplierDashboard = () => {
           </div>
         </div>
 
-        {/* Charts Section */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
+        {/* Revenue Chart - Full Width */}
+        <div className="mb-8">
           <Suspense fallback={<ChartLoading />}>
             <RevenueChart />
           </Suspense>
+        </div>
+
+        {/* Customer Stats - Full Width */}
+        <div className="mb-8">
           <Suspense fallback={<ChartLoading />}>
-            <TourCategoriesChart />
+            <CustomerStatsChart />
           </Suspense>
         </div>
 
+        {/* Charts Section - 2 columns */}
         <div className="grid lg:grid-cols-2 gap-8 mb-8">
           <Suspense fallback={<ChartLoading />}>
-            <BookingsChart />
+            <TourCategoriesChart />
           </Suspense>
           <Suspense fallback={<ChartLoading />}>
             <TourPerformanceChart />
           </Suspense>
         </div>
 
+        {/* Booking Stats - Full Width */}
         <div className="mb-8">
           <Suspense fallback={<ChartLoading />}>
-            <RevenueTrendChart />
+            <SupplierBookingStatsChart />
           </Suspense>
         </div>
 
@@ -556,9 +561,9 @@ export const SupplierDashboard = () => {
               ))}
             </div>
           )}
-        </div>
       </div>
     </DashboardLayout>
   );
 };
+
 

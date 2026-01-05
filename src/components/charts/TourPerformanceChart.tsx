@@ -15,35 +15,103 @@ import { LoadingSpinner } from '../common/Loading';
 const TourPerformanceChart = () => {
   const [data, setData] = useState<{ name: string; bookings: number; revenue: number }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<'revenue' | 'bookings' | 'rating'>('revenue');
+  const [limit, setLimit] = useState(5);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const result = await supplierService.getTopTours(
+        sortBy,
+        limit,
+        startDate || undefined,
+        endDate || undefined
+      );
+      
+      // Transform data for chart
+      const chartData = result.map((tour) => ({
+        name: tour.tieu_de.length > 20 ? tour.tieu_de.substring(0, 20) + '...' : tour.tieu_de,
+        bookings: tour.total_bookings,
+        revenue: typeof tour.total_revenue === 'string' ? parseFloat(tour.total_revenue) : tour.total_revenue,
+      }));
+      setData(chartData);
+    } catch (error) {
+      console.error('Error fetching tour performance data:', error);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const result = await supplierService.getTopTours('revenue', 5);
-        
-        // Transform data for chart
-        const chartData = result.map((tour) => ({
-          name: tour.tieu_de.length > 20 ? tour.tieu_de.substring(0, 20) + '...' : tour.tieu_de,
-          bookings: tour.total_bookings,
-          revenue: typeof tour.total_revenue === 'string' ? parseFloat(tour.total_revenue) : tour.total_revenue,
-        }));
-        setData(chartData);
-      } catch (error) {
-        console.error('Error fetching tour performance data:', error);
-        setData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, []);
+  }, [sortBy, limit, startDate, endDate]);
   return (
     <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-white">Hiệu Suất Tour</h3>
-        <p className="text-sm text-pink-300/80">Top 5 tour có hiệu suất tốt nhất</p>
+        <p className="text-sm text-pink-300/80">Top tours có hiệu suất tốt nhất</p>
+      </div>
+
+      {/* Filters */}
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">Sắp xếp theo</label>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as 'revenue' | 'bookings' | 'rating')}
+            className="w-full px-3 py-2 bg-slate-800/50 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+          >
+            <option value="revenue">Doanh thu</option>
+            <option value="bookings">Số đặt chỗ</option>
+            <option value="rating">Đánh giá</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">Số lượng</label>
+          <select
+            value={limit}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-full px-3 py-2 bg-slate-800/50 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+          >
+            <option value="5">Top 5</option>
+            <option value="10">Top 10</option>
+            <option value="20">Top 20</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">Từ ngày</label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="w-full px-3 py-2 bg-slate-800/50 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">Đến ngày</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="w-full px-3 py-2 bg-slate-800/50 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+          />
+        </div>
+        <div className="flex items-end">
+          <button
+            onClick={() => {
+              setStartDate('');
+              setEndDate('');
+              setSortBy('revenue');
+              setLimit(5);
+            }}
+            className="w-full px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-xs sm:text-sm transition-all duration-200"
+          >
+            Đặt lại
+          </button>
+        </div>
       </div>
       
       {loading ? (
