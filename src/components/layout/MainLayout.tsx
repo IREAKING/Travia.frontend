@@ -3,6 +3,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { ToastContainer } from '../common/Toast';
 import { useToast } from '../../hooks/useToast';
+import { ChatWidget } from '../chat/ChatWidget';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -19,6 +20,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
       </main>
       <Footer />
       <ToastContainer toasts={toasts} onClose={removeToast} />
+      <ChatWidget />
     </div>
   );
 };

@@ -70,6 +70,16 @@ body {
   ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #f59e0b, #0d9488);
   }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
 }
 
 /* Custom Animations */

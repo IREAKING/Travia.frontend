@@ -734,3 +734,27 @@ export interface SupplierBookingAdvanced {
   total_passengers: number;
   confirmed_revenue: number | string;
 }
+
+// AI Chatbot types
+export interface ChatbotRequest {
+  message: string;
+  session_id?: string;
+  include_tours?: boolean;
+}
+
+export interface ChatbotResponse {
+  message: string;
+  session_id: string;
+  data: {
+    response: string;
+  };
+}
+
+export interface ChatHistory {
+  id: number;
+  nguoi_dung_id?: string;
+  ma_phien: string;
+  cau_hoi: string;
+  cau_tra_loi: string;
+  ngay_tao: string;
+}

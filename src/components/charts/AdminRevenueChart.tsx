@@ -48,7 +48,7 @@ export const AdminRevenueChart = () => {
     const revenueNum = typeof revenueValue === 'string' ? parseFloat(revenueValue) : revenueValue;
     
     return {
-      ...item,
+    ...item,
       name: dateStr ? new Date(dateStr).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }) : '',
       revenue: isNaN(revenueNum) ? 0 : revenueNum
     };
@@ -156,7 +156,7 @@ export const AdminRevenueChart = () => {
         {formattedData.length > 0 ? (
           <div style={{ width: '100%', height: '256px', minHeight: '256px' }}>
             <ResponsiveContainer width="100%" height={256}>
-              <AreaChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <AreaChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/>

@@ -12,6 +12,8 @@ import { BlogPage } from './pages/public/Blog';
 import { AboutPage } from './pages/public/About';
 import { ContactPage } from './pages/public/Contact';
 import { FAQPage } from './pages/public/FAQ';
+import { ChatbotPage } from './pages/public/ChatbotPage';
+import { RecommendedToursPage } from './pages/public/RecommendedToursPage';
 import { TermsPage } from './pages/public/Terms';
 import { PrivacyPage } from './pages/public/Privacy';
 import { RefundPage } from './pages/public/Refund';
@@ -51,6 +53,7 @@ import { AnalyticsPage as AdminAnalyticsPage } from './pages/admin/Analytics';
 import { TourManagementPage } from './pages/admin/TourManagement';
 import { BookingManagementPage } from './pages/admin/BookingManagement';
 import { PaymentManagementPage } from './pages/admin/PaymentManagement';
+import { ContactManagementPage } from './pages/admin/ContactManagement';
 import { AdminSettingsPage } from './pages/admin/Settings';
 
 // User Pages
@@ -59,6 +62,8 @@ import { MyBookingsPage } from './pages/user/MyBookings';
 import { MyFavoritesPage } from './pages/user/MyFavorites';
 import { SettingsPage } from './pages/user/Settings';
 import { BookingDetailsPage } from './pages/user/BookingDetails';
+import { NotificationsPage } from './pages/user/Notifications';
+import { MyContactsPage } from './pages/user/MyContacts';
 
 // Error Pages
 const NotFoundPage = () => (
@@ -102,6 +107,8 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/faq" element={<FAQPage />} />
+          <Route path="/chatbot" element={<ChatbotPage />} />
+          <Route path="/recommended-tours" element={<RecommendedToursPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/refund" element={<RefundPage />} />
@@ -168,6 +175,22 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute allowedRoles={['khach_hang']}>
+                <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-contacts"
+            element={
+              <ProtectedRoute allowedRoles={['khach_hang']}>
+                <MyContactsPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Protected Routes - Admin */}
           <Route
@@ -231,6 +254,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['quan_tri']}>
                 <PaymentManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/contacts"
+            element={
+              <ProtectedRoute allowedRoles={['quan_tri']}>
+                <ContactManagementPage />
               </ProtectedRoute>
             }
           />

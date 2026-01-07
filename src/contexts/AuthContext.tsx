@@ -307,6 +307,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.removeItem('supplier');
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      
+      // Clear any other auth-related data
+      sessionStorage.clear();
+      
+      // Clear axios default headers if needed
+      const { api } = await import('../services/api');
+      delete api.defaults.headers.common['Authorization'];
     }
   }, []);
 

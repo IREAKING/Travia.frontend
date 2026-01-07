@@ -25,7 +25,7 @@ export const RecentBookingsTable = () => {
 
   useEffect(() => {
     // TODO: Implement getRecentBookings service function
-    setLoading(false);
+        setLoading(false);
     setError('Service function not implemented');
   }, []);
 

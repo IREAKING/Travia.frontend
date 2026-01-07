@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ToastContainer } from '../common/Toast';
 import { useToast } from '../../hooks/useToast';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,7 +13,44 @@ interface DashboardLayoutProps {
 export const DashboardLayout = ({ children, sidebar }: DashboardLayoutProps) => {
   const { toasts, removeToast } = useToast();
   const { user, logout } = useAuth();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const handleLogout = async () => {
+    try {
+      // Determine redirect path based on current location BEFORE logout
+      const currentPath = location.pathname;
+      let redirectPath = '/login';
+      
+      if (currentPath.startsWith('/admin')) {
+        redirectPath = '/admin/login';
+      } else if (currentPath.startsWith('/supplier')) {
+        redirectPath = '/supplier/login';
+      }
+      
+      // Call logout to clear all data
+      await logout();
+      
+      // Force full page reload to clear all state and redirect
+      // Using window.location.href ensures complete cleanup
+      window.location.href = redirectPath;
+    } catch (error) {
+      console.error('Logout error:', error);
+      
+      // Still redirect even if logout fails
+      const currentPath = location.pathname;
+      let redirectPath = '/login';
+      
+      if (currentPath.startsWith('/admin')) {
+        redirectPath = '/admin/login';
+      } else if (currentPath.startsWith('/supplier')) {
+        redirectPath = '/supplier/login';
+      }
+      
+      // Force redirect
+      window.location.href = redirectPath;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#030712]">
@@ -83,7 +120,7 @@ export const DashboardLayout = ({ children, sidebar }: DashboardLayoutProps) => 
 
               {/* Logout */}
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="p-2.5 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all duration-300"
                 title="Đăng xuất"
               >

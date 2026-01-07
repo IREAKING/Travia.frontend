@@ -55,6 +55,41 @@ export const tourService = {
     }
   },
 
+  // Get tours by location (domestic and international)
+  getToursByLocation: async (
+    limit: number = 10,
+    offset: number = 0
+  ): Promise<{
+    country_code: string;
+    tours_quoc_noi: GetAllTour[];
+    tours_quoc_te: GetAllTour[];
+  }> => {
+    try {
+      const response = await api.get<ApiResponse<{
+        country_code: string;
+        tours_quoc_noi: GetAllTour[];
+        tours_quoc_te: GetAllTour[];
+      }>>('/location/tours', {
+        params: {
+          limit,
+          offset,
+        },
+      });
+      return response.data?.data || {
+        country_code: 'VN',
+        tours_quoc_noi: [],
+        tours_quoc_te: [],
+      };
+    } catch (error) {
+      console.error('Error fetching tours by location:', error);
+      return {
+        country_code: 'VN',
+        tours_quoc_noi: [],
+        tours_quoc_te: [],
+      };
+    }
+  },
+
   // Search tours with advanced params
   searchTours: async (params: SearchToursParams): Promise<GetAllTour[]> => {
     try {

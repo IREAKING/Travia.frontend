@@ -7,8 +7,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../hooks/useToast';
 import { AdvancedSearchBox } from '../../components/common/SearchBox';
 import { Testimonials } from '../../components/common/Testimonials';
+import { RecommendedTours } from '../../components/tour/RecommendedTours';
+import { LocationTours } from '../../components/tour/LocationTours';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
-import type { TourCategory, SearchToursParams } from '../../types';
+import type { SearchToursParams } from '../../types';
 import type { GetAllTour } from '../../types/tour';
 import { formatCurrency } from '../../utils/formatters';
 import { LoadingSpinner } from '../../components/common/Loading';
@@ -18,7 +20,6 @@ export const HomePage = () => {
   const { user, isAuthenticated } = useAuth();
   const { showToast } = useToast();
   const [featuredTours, setFeaturedTours] = useState<GetAllTour[]>([]);
-  const [categories, setCategories] = useState<TourCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const navigate = useNavigate();
@@ -56,16 +57,11 @@ export const HomePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [toursData, categoriesData] = await Promise.all([
-          tourService.getAllTours(),
-          tourService.getAllCategories(),
-        ]);
+        const toursData = await tourService.getAllTours();
         setFeaturedTours((toursData || []).filter(t => t.noi_bat).slice(0, 6));
-        setCategories(categoriesData || []);
       } catch (error) {
         console.error('Failed to fetch data:', error);
         setFeaturedTours([]);
-        setCategories([]);
       } finally {
         setLoading(false);
       }
@@ -214,34 +210,6 @@ export const HomePage = () => {
     );
   };
 
-  // Category Card
-  const CategoryCard = ({ category, index }: { category: TourCategory; index: number }) => (
-    <Link
-      to={`/tours?category=${category.id}`}
-      className={`group relative p-6 rounded-2xl overflow-hidden transition-all duration-500 scroll-reveal stagger-${(index % 5) + 1}`}
-    >
-      {/* Glow */}
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-50 blur-lg transition-all duration-500" />
-      
-      {/* Card */}
-      <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl p-6 border border-white/10 group-hover:border-white/20 transition-all h-full">
-        <div className="w-14 h-14 bg-gradient-to-br from-cyan-500/30 to-purple-500/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500 border border-cyan-500/30">
-          <svg className="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h3 className="font-bold text-lg text-white group-hover:text-cyan-300 transition-colors mb-2">{category.ten}</h3>
-        {category.mo_ta && <p className="text-sm text-slate-500 line-clamp-2">{category.mo_ta}</p>}
-        
-        {/* Arrow */}
-        <div className="absolute bottom-6 right-6 w-10 h-10 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 border border-cyan-500/30">
-          <svg className="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-        </div>
-      </div>
-    </Link>
-  );
 
   return (
     <MainLayout>
@@ -330,33 +298,29 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Categories - Dark Theme */}
-      <section className="py-24 bg-[#030712] relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[150px]" />
-
+      {/* Location Based Tours - Tour Quốc Nội & Quốc Tế */}
+      <section className="py-24 bg-[#0a0f1a] relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-0 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[150px]" />
+          <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[150px]" />
+        </div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-16">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 text-cyan-400 text-sm font-semibold rounded-full border border-cyan-500/30 mb-4 scroll-reveal">
-              ✨ Khám phá theo sở thích
-            </span>
-            <h2 className="text-5xl font-black text-white scroll-reveal" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Danh Mục <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Tour</span>
-            </h2>
-          </div>
-          
-          {loading ? (
-            <div className="flex justify-center"><LoadingSpinner size="lg" /></div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {categories.map((category, index) => (
-                <CategoryCard key={category.id} category={category} index={index} />
-              ))}
-            </div>
-          )}
+          <LocationTours limit={10} />
         </div>
       </section>
+
+      {/* Recommended Tours - AI Powered */}
+      {isAuthenticated && (
+        <section className="py-24 bg-[#030712] relative overflow-hidden">
+          <div className="absolute inset-0">
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[150px]" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[150px]" />
+          </div>
+          <div className="container mx-auto px-4 relative z-10">
+            <RecommendedTours method="preferences" limit={10} showMethodSelector={false} />
+          </div>
+        </section>
+      )}
 
       {/* Featured Tours - Dark Theme */}
       <section className="py-24 bg-[#0a0f1a] relative overflow-hidden">
@@ -387,10 +351,16 @@ export const HomePage = () => {
           {loading ? (
             <div className="flex justify-center"><LoadingSpinner size="lg" /></div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredTours.map((tour, index) => (
-                <FeaturedTourCard key={tour.id} tour={tour} index={index} />
-              ))}
+            <div className="relative">
+              <div className="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4">
+                <div className="flex gap-6 min-w-max">
+                  {featuredTours.map((tour, index) => (
+                    <div key={tour.id} className="w-80 flex-shrink-0">
+                      <FeaturedTourCard tour={tour} index={index} />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 

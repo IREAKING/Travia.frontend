@@ -6,6 +6,7 @@ import { LoadingSpinner } from '../../components/common/Loading';
 import { formatCurrency, formatDate, getStatusText } from '../../utils/formatters';
 import { bookingService } from '../../services/bookingService';
 import { paymentService } from '../../services/paymentService';
+import { ticketService } from '../../services/ticketService';
 import { useToast } from '../../hooks/useToast';
 import { ReviewForm } from '../../components/review/ReviewForm';
 import { Modal } from '../../components/common/Modal';
@@ -44,6 +45,22 @@ export const MyBookingsPage = () => {
   const pageSize = 10;
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<BookingDisplay | null>(null);
+  const [downloadingTicket, setDownloadingTicket] = useState<number | null>(null);
+
+  const handleDownloadTicket = async (bookingId: number) => {
+    try {
+      setDownloadingTicket(bookingId);
+      showToast('Đang tải vé...', 'info');
+      await ticketService.downloadTicket(bookingId);
+      showToast('Tải vé thành công!', 'success');
+    } catch (error: any) {
+      console.error('Error downloading ticket:', error);
+      const errorMessage = error?.message || 'Không thể tải vé';
+      showToast(errorMessage, 'error');
+    } finally {
+      setDownloadingTicket(null);
+    }
+  };
 
   const handleVNPayPayment = async (bookingId: number) => {
     // Check authentication before calling API
@@ -571,14 +588,30 @@ export const MyBookingsPage = () => {
                             </button>
                           )}
                             {(booking.status === 'da_xac_nhan' || booking.status === 'da_thanh_toan' || booking.status === 'hoan_thanh') && booking.payment_status === 'paid' && (
-                              <button className="relative px-6 py-3 overflow-hidden rounded-xl font-semibold text-white transition-all duration-500 group">
+                              <button
+                                onClick={() => handleDownloadTicket(booking.id)}
+                                disabled={downloadingTicket === booking.id}
+                                className="relative px-6 py-3 overflow-hidden rounded-xl font-semibold text-white transition-all duration-500 group disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
                                 <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl" />
                                 <span className="absolute inset-[2px] bg-slate-900 rounded-lg group-hover:bg-slate-800 transition-colors" />
                                 <span className="relative z-10 flex items-center gap-2">
-                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                              Tải vé
+                                  {downloadingTicket === booking.id ? (
+                                    <>
+                                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                      </svg>
+                                      Đang tải...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                      </svg>
+                                      Tải vé
+                                    </>
+                                  )}
                                 </span>
                             </button>
                           )}

@@ -45,8 +45,10 @@ class TokenManager {
                                originalRequest?.url?.includes('/auth/createUser') ||
                                originalRequest?.url?.includes('/auth/refresh');
         
-        // TEMPORARILY: Skip auto-redirect for payment endpoints to allow debugging
-        const isPaymentEndpoint = originalRequest?.url?.includes('/payment/vnpay/create');
+        // Skip auto-redirect for payment endpoints to allow debugging
+        const isPaymentEndpoint = originalRequest?.url?.includes('/payment/vnpay/create') ||
+                                  originalRequest?.url?.includes('/payment/vnpay/verify') ||
+                                  originalRequest?.url?.includes('/payment/vnpay/callback');
 
         if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
           if (this.isRefreshing) {
@@ -105,11 +107,17 @@ class TokenManager {
 
         // Other errors or already retried
         if (error.response?.status === 401 && originalRequest._retry) {
-          // TEMPORARILY: Skip auto-redirect for payment endpoints
-          if (!isPaymentEndpoint) {
+          // Check current path before handling auth failure
+          const currentPath = window.location.pathname;
+          const isPaymentPage = currentPath.startsWith('/payment/') || currentPath.startsWith('/booking/');
+          
+          // Skip auto-redirect for payment endpoints and payment pages
+          if (!isPaymentEndpoint && !isPaymentPage) {
             this.handleAuthFailure();
           } else {
-            console.log('⚠️ Payment endpoint 401 - skipping auto-redirect for debugging');
+            console.log('⚠️ Payment endpoint/page 401 - skipping auto-redirect');
+            console.log('Current path:', currentPath);
+            console.log('Request URL:', originalRequest?.url);
           }
         }
 
@@ -122,22 +130,26 @@ class TokenManager {
    * Handle authentication failure
    */
   private handleAuthFailure() {
-    // Clear all auth data
-    localStorage.removeItem('user');
-    localStorage.removeItem('supplier');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    
     // Redirect to login if not already there
     const currentPath = window.location.pathname;
     const publicPaths = ['/login', '/register', '/admin/login', '/supplier/login', '/'];
     
     // Skip auto-redirect for payment pages - let component handle it
+    // Include all payment-related pages: /payment/success, /payment/failure, /payment/vnpay/return, etc.
     if (currentPath.startsWith('/payment/') || currentPath.startsWith('/booking/')) {
       console.log('⚠️ Payment/Booking page detected - skipping auto-redirect, letting component handle it');
       console.log('Current path:', currentPath);
+      // Don't clear tokens for payment pages - user might still need them
+      // Only log the auth failure
+      console.warn('⚠️ Authentication failure detected but skipping redirect for payment/booking page');
       return; // Don't redirect, let the component handle it
     }
+    
+    // Clear all auth data only if we're going to redirect
+    localStorage.removeItem('user');
+    localStorage.removeItem('supplier');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     
     if (!publicPaths.includes(currentPath)) {
       // Preserve intended destination for redirect after login

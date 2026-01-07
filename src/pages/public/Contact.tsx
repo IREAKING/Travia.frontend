@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { MainLayout } from '../../components/layout/MainLayout';
+import { contactService } from '../../services/contactService';
+import { useToast } from '../../hooks/useToast';
 
 export const ContactPage = () => {
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,12 +19,36 @@ export const ContactPage = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus('idle');
     
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // Validate required fields
+      if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+        showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Call API
+      await contactService.createContact({
+        ho_ten: formData.name,
+        email: formData.email,
+        so_dien_thoai: formData.phone || undefined,
+        tieu_de: formData.subject,
+        noi_dung: formData.message,
+      });
+
       setSubmitStatus('success');
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-    }, 1000);
+      showToast('Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất có thể.', 'success');
+    } catch (error: any) {
+      console.error('Error submitting contact form:', error);
+      setSubmitStatus('error');
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Có lỗi xảy ra khi gửi liên hệ. Vui lòng thử lại.';
+      showToast(errorMessage, 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -158,6 +185,13 @@ export const ContactPage = () => {
                   <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center gap-3">
                     <span className="text-xl">✅</span>
                     <span className="font-medium">Cảm ơn bạn! Chúng tôi sẽ liên hệ lại sớm nhất.</span>
+                </div>
+              )}
+
+              {submitStatus === 'error' && (
+                  <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl flex items-center gap-3">
+                    <span className="text-xl">❌</span>
+                    <span className="font-medium">Có lỗi xảy ra. Vui lòng thử lại sau.</span>
                 </div>
               )}
 
