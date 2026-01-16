@@ -155,6 +155,15 @@ export const UserLoginPage = () => {
             accentColor="cyan"
           />
 
+          <div className="mt-6 text-right">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+            >
+              Quên mật khẩu?
+            </Link>
+          </div>
+
           <div className="mt-8 space-y-4">
             <div className="text-center text-sm text-slate-400">
               Chưa có tài khoản?{' '}

@@ -123,7 +123,7 @@ export const ReviewsPage = () => {
                   <img src={tourData.anh} alt={tourData.tieu_de} className="w-20 h-20 object-cover rounded-2xl border border-white/10" />
                   <div>
                     <span className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-400 text-sm font-semibold rounded-full border border-amber-500/30 mb-2">
-                      ⭐ Đánh Giá Tour
+                      ⭐ Đánh giá tour
                     </span>
                     <h1 className="text-3xl font-bold text-white" style={{ fontFamily: "'Playfair Display', serif" }}>{tourData.tieu_de}</h1>
                     <p className="text-slate-400">{tourData.so_ngay} ngày {tourData.so_dem} đêm</p>
@@ -141,7 +141,7 @@ export const ReviewsPage = () => {
               {/* Summary */}
               <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-2xl font-bold text-white">Tổng Quan</h3>
+                  <h3 className="text-2xl font-bold text-white">Tổng quan</h3>
                   <div className="text-right">
                     <div className="text-5xl font-black bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{getAverageRating().toFixed(1)}</div>
                     <div className="flex items-center gap-2 mt-1">
@@ -184,7 +184,7 @@ export const ReviewsPage = () => {
               {/* Review Form */}
               {showReviewForm && (
                 <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-white/10 animate-fade-in">
-                  <h3 className="text-2xl font-bold text-white mb-6">Viết Đánh Giá</h3>
+                  <h3 className="text-2xl font-bold text-white mb-6">Viết đánh giá</h3>
                   <form onSubmit={handleSubmitReview} className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-slate-400 mb-3">Đánh giá của bạn</label>
@@ -248,7 +248,7 @@ export const ReviewsPage = () => {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-                <h3 className="text-xl font-bold text-white mb-4">Thông Tin Tour</h3>
+                <h3 className="text-xl font-bold text-white mb-4">Thông tin tour</h3>
                 {tourData && (
                   <div className="space-y-4">
                     <img src={tourData.anh} alt={tourData.tieu_de} className="w-full h-48 object-cover rounded-2xl border border-white/10" />
@@ -261,7 +261,7 @@ export const ReviewsPage = () => {
                       <span className="text-slate-500">/người</span>
                     </div>
                     <button onClick={() => navigate(`/tours/${tourData.id}`)} className="w-full py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all">
-                      Xem Chi Tiết Tour
+                      Xem chi tiết tour
                     </button>
                   </div>
                 )}

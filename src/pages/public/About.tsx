@@ -55,23 +55,23 @@ export const AboutPage = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 text-cyan-400 text-sm font-semibold rounded-full border border-cyan-500/30 mb-4">
-              ✨ Sứ Mệnh & Tầm Nhìn
+              ✨ Sứ mệnh & tầm nhìn
             </span>
             <h2 className="text-5xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Định Hướng <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Phát Triển</span>
+              Định hướng <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Phát triển</span>
             </h2>
           </div>
           
           <div className="grid lg:grid-cols-2 gap-8">
             {[
               {
-                title: 'Sứ Mệnh',
+                title: 'Sứ mệnh',
                 icon: '🚀',
                 gradient: 'from-cyan-500 to-blue-600',
                 description: 'Mang đến cho mọi người những trải nghiệm du lịch tuyệt vời nhất, kết nối du khách với các điểm đến độc đáo và nhà cung cấp tour uy tín trên khắp Việt Nam và thế giới.',
               },
               {
-                title: 'Tầm Nhìn',
+                title: 'Tầm nhìn',
                 icon: '🎯',
                 gradient: 'from-purple-500 to-pink-600',
                 description: 'Trở thành nền tảng du lịch số 1 Đông Nam Á, nơi mọi người tìm thấy và đặt tour một cách dễ dàng, nhanh chóng với trải nghiệm tốt nhất.',
@@ -99,10 +99,10 @@ export const AboutPage = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-400 text-sm font-semibold rounded-full border border-amber-500/30 mb-4">
-              📊 Thành Tựu
+              📊 Thành tựu
             </span>
             <h2 className="text-5xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Con Số <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Ấn Tượng</span>
+              Con số <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Ấn tượng</span>
             </h2>
           </div>
           
@@ -136,10 +136,10 @@ export const AboutPage = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-400 text-sm font-semibold rounded-full border border-purple-500/30 mb-4">
-              👥 Đội Ngũ
+              👥 Đội ngũ
             </span>
             <h2 className="text-5xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Những <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Con Người</span> Tuyệt Vời
+              Những <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Con người</span> tuyệt vời
             </h2>
           </div>
           
@@ -172,10 +172,10 @@ export const AboutPage = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 text-sm font-semibold rounded-full border border-emerald-500/30 mb-4">
-              💎 Giá Trị
+              💎 Giá trị
             </span>
             <h2 className="text-5xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Giá Trị <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Cốt Lõi</span>
+              Giá trị <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Cốt lõi</span>
             </h2>
           </div>
           
@@ -211,20 +211,20 @@ export const AboutPage = () => {
         
         <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-5xl md:text-6xl font-black text-white mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Sẵn Sàng <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Khám Phá?</span>
+            Sẵn sàng <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Khám phá?</span>
             </h2>
           <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">
             Bắt đầu hành trình của bạn cùng Travia ngay hôm nay
             </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="/tours" className="inline-flex items-center justify-center gap-2 px-10 py-5 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold rounded-2xl shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all hover:scale-105">
-                  Xem Tất Cả Tours
+                  Xem tất cả tours
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
               </a>
             <a href="/contact" className="inline-flex items-center justify-center gap-2 px-10 py-5 bg-white/5 backdrop-blur-xl text-white font-bold rounded-2xl border border-white/20 hover:bg-white/10 transition-all hover:scale-105">
-                  Liên Hệ Với Chúng Tôi
+                  Liên hệ với chúng tôi
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>

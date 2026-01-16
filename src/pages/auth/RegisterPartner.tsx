@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supplierService } from '../../services/supplierService';
-import type { CreateSupplierRequest } from '../../types';
 import { useToast } from '../../hooks/useToast';
 
 export const RegisterPartnerPage = () => {
@@ -10,34 +9,75 @@ export const RegisterPartnerPage = () => {
   const [error, setError] = useState('');
   const { showToast } = useToast();
   
-  const [formData, setFormData] = useState<CreateSupplierRequest>({
-    thong_tin_dang_nhap: {
-      nguoi_dai_dien: '',
-      email: '',
-      mat_khau: '',
-      so_dien_thoai: '',
-    },
-    thong_tin_nha_cung_cap: {
-      ten: '',
-      dia_chi: '',
-      website: '',
-      mo_ta: '',
-      logo_url: '',
-    },
-  });
+  // Form data
+  const [nguoiDaiDien, setNguoiDaiDien] = useState('');
+  const [email, setEmail] = useState('');
+  const [matKhau, setMatKhau] = useState('');
+  const [soDienThoai, setSoDienThoai] = useState('');
+  const [ten, setTen] = useState('');
+  const [diaChi, setDiaChi] = useState('');
+  const [website, setWebsite] = useState('');
+  const [moTa, setMoTa] = useState('');
+  const [namThanhLap, setNamThanhLap] = useState('');
+  const [thanhPho, setThanhPho] = useState('');
+  const [quocGia, setQuocGia] = useState('');
+  const [maSoThue, setMaSoThue] = useState('');
+  const [soNhanVien, setSoNhanVien] = useState('');
+
+  // File uploads
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [giayToFile, setGiayToFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const giayToInputRef = useRef<HTMLInputElement>(null);
 
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleInputChange = (section: keyof CreateSupplierRequest, field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value,
-      },
-    }));
-    setError('');
+  // Handle logo file selection
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate image type
+      if (!file.type.startsWith('image/')) {
+        setError('Logo phải là file ảnh (JPEG, PNG, GIF, WebP, BMP)');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Logo không được vượt quá 5MB');
+        return;
+      }
+      setLogoFile(file);
+      setError('');
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle business license file selection
+  const handleGiayToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate PDF type
+      if (file.type !== 'application/pdf') {
+        setError('Giấy phép kinh doanh phải là file PDF');
+        return;
+      }
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setError('File giấy phép kinh doanh không được vượt quá 10MB');
+        return;
+      }
+      setGiayToFile(file);
+      setError('');
+    }
   };
 
   // Helper function to format URL
@@ -53,59 +93,59 @@ export const RegisterPartnerPage = () => {
   };
 
   const validateForm = (): boolean => {
-    const { thong_tin_dang_nhap, thong_tin_nha_cung_cap } = formData;
-
-    if (!thong_tin_dang_nhap.nguoi_dai_dien.trim()) {
+    if (!nguoiDaiDien.trim()) {
       setError('Vui lòng nhập tên người đại diện');
       return false;
     }
 
-    if (!thong_tin_dang_nhap.email.trim()) {
+    if (!email.trim()) {
       setError('Vui lòng nhập email');
       return false;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(thong_tin_dang_nhap.email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Email không hợp lệ');
       return false;
     }
 
-    if (!thong_tin_dang_nhap.mat_khau.trim()) {
+    if (!matKhau.trim()) {
       setError('Vui lòng nhập mật khẩu');
       return false;
     }
 
-    if (thong_tin_dang_nhap.mat_khau.length < 8) {
+    if (matKhau.length < 8) {
       setError('Mật khẩu phải có ít nhất 8 ký tự');
       return false;
     }
 
-    if (thong_tin_dang_nhap.mat_khau !== confirmPassword) {
+    if (matKhau !== confirmPassword) {
       setError('Mật khẩu xác nhận không khớp');
       return false;
     }
 
-    if (!thong_tin_nha_cung_cap.ten.trim()) {
+    if (!ten.trim()) {
       setError('Vui lòng nhập tên nhà cung cấp');
       return false;
     }
 
-    // Validate website URL (optional but if provided should be valid)
-    if (thong_tin_nha_cung_cap.website && thong_tin_nha_cung_cap.website.trim()) {
-      const website = thong_tin_nha_cung_cap.website.trim();
-      const urlPattern = /^(https?:\/\/)?([\w\-\.]+)\.([a-z]{2,})([\/\w\-\.]*)*\/?$/i;
-      if (!urlPattern.test(website)) {
-        setError('URL website không hợp lệ. Ví dụ: example.com hoặc https://example.com');
-        return false;
-      }
+    if (!namThanhLap.trim()) {
+      setError('Vui lòng nhập năm thành lập');
+      return false;
     }
 
-    // Validate logo URL (optional but if provided should be valid)
-    if (thong_tin_nha_cung_cap.logo_url && thong_tin_nha_cung_cap.logo_url.trim()) {
-      const logoUrl = thong_tin_nha_cung_cap.logo_url.trim();
+    // Validate date format (YYYY-MM-DD)
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!datePattern.test(namThanhLap)) {
+      setError('Năm thành lập phải có định dạng YYYY-MM-DD (ví dụ: 2020-01-01)');
+      return false;
+    }
+
+    // Validate website URL (optional but if provided should be valid)
+    if (website && website.trim()) {
+      const websiteUrl = website.trim();
       const urlPattern = /^(https?:\/\/)?([\w\-\.]+)\.([a-z]{2,})([\/\w\-\.]*)*\/?$/i;
-      if (!urlPattern.test(logoUrl)) {
-        setError('URL logo không hợp lệ. Ví dụ: https://example.com/logo.png');
+      if (!urlPattern.test(websiteUrl)) {
+        setError('URL website không hợp lệ. Ví dụ: example.com hoặc https://example.com');
         return false;
       }
     }
@@ -124,17 +164,51 @@ export const RegisterPartnerPage = () => {
     setError('');
 
     try {
-      // Format URLs before sending
-      const formattedData = {
-        ...formData,
-        thong_tin_nha_cung_cap: {
-          ...formData.thong_tin_nha_cung_cap,
-          website: formData.thong_tin_nha_cung_cap.website ? formatUrl(formData.thong_tin_nha_cung_cap.website) : undefined,
-          logo_url: formData.thong_tin_nha_cung_cap.logo_url ? formatUrl(formData.thong_tin_nha_cung_cap.logo_url) : undefined,
-        },
-      };
+      // Create FormData
+      const formDataToSend = new FormData();
+      
+      // Thông tin đăng nhập
+      formDataToSend.append('nguoi_dai_dien', nguoiDaiDien);
+      formDataToSend.append('email', email);
+      formDataToSend.append('mat_khau', matKhau);
+      if (soDienThoai) {
+        formDataToSend.append('so_dien_thoai', soDienThoai);
+      }
 
-      await supplierService.registerPartner(formattedData);
+      // Thông tin nhà cung cấp
+      formDataToSend.append('ten', ten);
+      if (diaChi) {
+        formDataToSend.append('dia_chi', diaChi);
+      }
+      if (website) {
+        formDataToSend.append('website', formatUrl(website));
+      }
+      if (moTa) {
+        formDataToSend.append('mo_ta', moTa);
+      }
+      formDataToSend.append('nam_thanh_lap', namThanhLap);
+      if (thanhPho) {
+        formDataToSend.append('thanh_pho', thanhPho);
+      }
+      if (quocGia) {
+        formDataToSend.append('quoc_gia', quocGia);
+      }
+      if (maSoThue) {
+        formDataToSend.append('ma_so_thue', maSoThue);
+      }
+      if (soNhanVien) {
+        formDataToSend.append('so_nhan_vien', soNhanVien);
+      }
+
+      // File uploads
+      if (logoFile) {
+        formDataToSend.append('logo', logoFile);
+      }
+      if (giayToFile) {
+        formDataToSend.append('giay_to_kinh_doanh', giayToFile);
+      }
+
+      await supplierService.registerPartner(formDataToSend);
       showToast('Đăng ký đối tác thành công! Tài khoản của bạn đang chờ admin duyệt.', 'success');
       // Redirect to login page after 2 seconds
       setTimeout(() => {
@@ -226,19 +300,22 @@ export const RegisterPartnerPage = () => {
                 <svg className="w-5 h-5 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Thông Tin Đăng Nhập
+                Thông tin đăng nhập
               </h2>
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="nguoi_dai_dien" className="block text-sm font-medium text-slate-300 mb-2">
-                    Tên Người Đại Diện <span className="text-red-400">*</span>
+                    Tên người đại diện <span className="text-red-400">*</span>
                   </label>
                   <input
                     id="nguoi_dai_dien"
                     type="text"
-                    value={formData.thong_tin_dang_nhap.nguoi_dai_dien}
-                    onChange={(e) => handleInputChange('thong_tin_dang_nhap', 'nguoi_dai_dien', e.target.value)}
+                    value={nguoiDaiDien}
+                    onChange={(e) => {
+                      setNguoiDaiDien(e.target.value);
+                      setError('');
+                    }}
                     className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 text-white placeholder-slate-500 transition-all"
                     placeholder="Nguyễn Văn A"
                     required
@@ -253,8 +330,11 @@ export const RegisterPartnerPage = () => {
                   <input
                     id="email"
                     type="email"
-                    value={formData.thong_tin_dang_nhap.email}
-                    onChange={(e) => handleInputChange('thong_tin_dang_nhap', 'email', e.target.value)}
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError('');
+                    }}
                     className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 text-white placeholder-slate-500 transition-all"
                     placeholder="example@company.com"
                     required
@@ -264,14 +344,17 @@ export const RegisterPartnerPage = () => {
 
                 <div>
                   <label htmlFor="mat_khau" className="block text-sm font-medium text-slate-300 mb-2">
-                    Mật Khẩu <span className="text-red-400">*</span>
+                    Mật khẩu <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <input
                       id="mat_khau"
                       type={showPassword ? 'text' : 'password'}
-                      value={formData.thong_tin_dang_nhap.mat_khau}
-                      onChange={(e) => handleInputChange('thong_tin_dang_nhap', 'mat_khau', e.target.value)}
+                      value={matKhau}
+                      onChange={(e) => {
+                        setMatKhau(e.target.value);
+                        setError('');
+                      }}
                       className="w-full px-4 py-3 pr-11 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 text-white placeholder-slate-500 transition-all"
                       placeholder="Tối thiểu 8 ký tự"
                       required
@@ -298,7 +381,7 @@ export const RegisterPartnerPage = () => {
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-2">
-                    Xác Nhận Mật Khẩu <span className="text-red-400">*</span>
+                    Xác nhận mật khẩu <span className="text-red-400">*</span>
                   </label>
                   <input
                     id="confirmPassword"
@@ -317,13 +400,16 @@ export const RegisterPartnerPage = () => {
 
                 <div>
                   <label htmlFor="so_dien_thoai" className="block text-sm font-medium text-slate-300 mb-2">
-                    Số Điện Thoại
+                    Số điện thoại
                   </label>
                   <input
                     id="so_dien_thoai"
                     type="tel"
-                    value={formData.thong_tin_dang_nhap.so_dien_thoai || ''}
-                    onChange={(e) => handleInputChange('thong_tin_dang_nhap', 'so_dien_thoai', e.target.value)}
+                    value={soDienThoai}
+                    onChange={(e) => {
+                      setSoDienThoai(e.target.value);
+                      setError('');
+                    }}
                     className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 text-white placeholder-slate-500 transition-all"
                     placeholder="0987654321"
                     disabled={isLoading}
@@ -338,19 +424,22 @@ export const RegisterPartnerPage = () => {
                 <svg className="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
-                Thông Tin Công Ty / Nhà Cung Cấp
+                Thông tin công ty / nhà cung cấp
               </h2>
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="ten" className="block text-sm font-medium text-slate-300 mb-2">
-                    Tên Công Ty / Nhà Cung Cấp <span className="text-red-400">*</span>
+                    Tên công ty / nhà cung cấp <span className="text-red-400">*</span>
                   </label>
                   <input
                     id="ten"
                     type="text"
-                    value={formData.thong_tin_nha_cung_cap.ten}
-                    onChange={(e) => handleInputChange('thong_tin_nha_cung_cap', 'ten', e.target.value)}
+                    value={ten}
+                    onChange={(e) => {
+                      setTen(e.target.value);
+                      setError('');
+                    }}
                     className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 transition-all"
                     placeholder="Tên công ty/nhà cung cấp"
                     required
@@ -359,16 +448,110 @@ export const RegisterPartnerPage = () => {
                 </div>
 
                 <div>
+                  <label htmlFor="nam_thanh_lap" className="block text-sm font-medium text-slate-300 mb-2">
+                    Năm thành lập <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    id="nam_thanh_lap"
+                    type="date"
+                    value={namThanhLap}
+                    onChange={(e) => {
+                      setNamThanhLap(e.target.value);
+                      setError('');
+                    }}
+                    className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 transition-all"
+                    required
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Định dạng: YYYY-MM-DD</p>
+                </div>
+
+                <div>
                   <label htmlFor="dia_chi" className="block text-sm font-medium text-slate-300 mb-2">
-                    Địa Chỉ
+                    Địa chỉ
                   </label>
                   <input
                     id="dia_chi"
                     type="text"
-                    value={formData.thong_tin_nha_cung_cap.dia_chi || ''}
-                    onChange={(e) => handleInputChange('thong_tin_nha_cung_cap', 'dia_chi', e.target.value)}
+                    value={diaChi}
+                    onChange={(e) => {
+                      setDiaChi(e.target.value);
+                      setError('');
+                    }}
                     className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 transition-all"
                     placeholder="Địa chỉ trụ sở chính"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="thanh_pho" className="block text-sm font-medium text-slate-300 mb-2">
+                    Thành phố
+                  </label>
+                  <input
+                    id="thanh_pho"
+                    type="text"
+                    value={thanhPho}
+                    onChange={(e) => {
+                      setThanhPho(e.target.value);
+                      setError('');
+                    }}
+                    className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 transition-all"
+                    placeholder="Thành phố"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="quoc_gia" className="block text-sm font-medium text-slate-300 mb-2">
+                    Quốc gia
+                  </label>
+                  <input
+                    id="quoc_gia"
+                    type="text"
+                    value={quocGia}
+                    onChange={(e) => {
+                      setQuocGia(e.target.value);
+                      setError('');
+                    }}
+                    className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 transition-all"
+                    placeholder="Quốc gia"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="ma_so_thue" className="block text-sm font-medium text-slate-300 mb-2">
+                    Mã số thuế
+                  </label>
+                  <input
+                    id="ma_so_thue"
+                    type="text"
+                    value={maSoThue}
+                    onChange={(e) => {
+                      setMaSoThue(e.target.value);
+                      setError('');
+                    }}
+                    className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 transition-all"
+                    placeholder="Mã số thuế"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="so_nhan_vien" className="block text-sm font-medium text-slate-300 mb-2">
+                    Số nhân viên
+                  </label>
+                  <input
+                    id="so_nhan_vien"
+                    type="text"
+                    value={soNhanVien}
+                    onChange={(e) => {
+                      setSoNhanVien(e.target.value);
+                      setError('');
+                    }}
+                    className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 transition-all"
+                    placeholder="Số nhân viên"
                     disabled={isLoading}
                   />
                 </div>
@@ -380,45 +563,125 @@ export const RegisterPartnerPage = () => {
                   <input
                     id="website"
                     type="text"
-                    value={formData.thong_tin_nha_cung_cap.website || ''}
-                    onChange={(e) => handleInputChange('thong_tin_nha_cung_cap', 'website', e.target.value)}
+                    value={website}
+                    onChange={(e) => {
+                      setWebsite(e.target.value);
+                      setError('');
+                    }}
                     className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 transition-all"
                     placeholder="example.com"
                     disabled={isLoading}
                   />
                   <p className="text-xs text-slate-500 mt-1">Có thể nhập với hoặc không có https://</p>
                 </div>
-
-                <div>
-                  <label htmlFor="logo_url" className="block text-sm font-medium text-slate-300 mb-2">
-                    Logo URL
-                  </label>
-                  <input
-                    id="logo_url"
-                    type="text"
-                    value={formData.thong_tin_nha_cung_cap.logo_url || ''}
-                    onChange={(e) => handleInputChange('thong_tin_nha_cung_cap', 'logo_url', e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 transition-all"
-                    placeholder="https://example.com/logo.png"
-                    disabled={isLoading}
-                  />
-                  <p className="text-xs text-slate-500 mt-1">URL hình ảnh logo của công ty</p>
-                </div>
               </div>
 
               <div className="mt-4">
                 <label htmlFor="mo_ta" className="block text-sm font-medium text-slate-300 mb-2">
-                  Mô Tả
+                  Mô tả
                 </label>
                 <textarea
                   id="mo_ta"
-                  value={formData.thong_tin_nha_cung_cap.mo_ta || ''}
-                  onChange={(e) => handleInputChange('thong_tin_nha_cung_cap', 'mo_ta', e.target.value)}
+                  value={moTa}
+                  onChange={(e) => {
+                    setMoTa(e.target.value);
+                    setError('');
+                  }}
                   rows={4}
                   className="w-full px-4 py-3 bg-white/5 border-2 border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-white placeholder-slate-500 resize-none transition-all"
                   placeholder="Mô tả về công ty, dịch vụ, kinh nghiệm..."
                   disabled={isLoading}
                 />
+              </div>
+
+              {/* Logo Upload */}
+              <div className="mt-4">
+                <label htmlFor="logo" className="block text-sm font-medium text-slate-300 mb-2">
+                  Logo công ty
+                </label>
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <input
+                      ref={logoInputRef}
+                      id="logo"
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/bmp"
+                      onChange={handleLogoChange}
+                      className="hidden"
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={isLoading}
+                      className="w-full px-4 py-3 bg-white/5 border-2 border-dashed border-white/20 rounded-xl hover:border-indigo-500/50 text-slate-300 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>{logoFile ? logoFile.name : 'Chọn file logo (JPEG, PNG, GIF, WebP, BMP - Tối đa 5MB)'}</span>
+                    </button>
+                    <p className="text-xs text-slate-500 mt-1">Chấp nhận: JPEG, PNG, GIF, WebP, BMP (Tối đa 5MB)</p>
+                  </div>
+                  {logoPreview && (
+                    <div className="w-24 h-24 rounded-xl overflow-hidden border-2 border-white/10">
+                      <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+                {logoFile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLogoFile(null);
+                      setLogoPreview(null);
+                      if (logoInputRef.current) logoInputRef.current.value = '';
+                    }}
+                    className="mt-2 text-sm text-red-400 hover:text-red-300"
+                  >
+                    Xóa logo đã chọn
+                  </button>
+                )}
+              </div>
+
+              {/* Business License Upload */}
+              <div className="mt-4">
+                <label htmlFor="giay_to_kinh_doanh" className="block text-sm font-medium text-slate-300 mb-2">
+                  Giấy phép kinh doanh
+                </label>
+                <input
+                  ref={giayToInputRef}
+                  id="giay_to_kinh_doanh"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleGiayToChange}
+                  className="hidden"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => giayToInputRef.current?.click()}
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 bg-white/5 border-2 border-dashed border-white/20 rounded-xl hover:border-indigo-500/50 text-slate-300 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <span>{giayToFile ? giayToFile.name : 'Chọn file giấy phép kinh doanh (PDF - Tối đa 10MB)'}</span>
+                </button>
+                <p className="text-xs text-slate-500 mt-1">Chỉ chấp nhận file PDF (Tối đa 10MB)</p>
+                {giayToFile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGiayToFile(null);
+                      if (giayToInputRef.current) giayToInputRef.current.value = '';
+                    }}
+                    className="mt-2 text-sm text-red-400 hover:text-red-300"
+                  >
+                    Xóa file đã chọn
+                  </button>
+                )}
               </div>
             </div>
 

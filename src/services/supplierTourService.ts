@@ -97,8 +97,16 @@ export const supplierTourService = {
   // Get countries list
   getCountries: async (): Promise<string[]> => {
     try {
-      const response = await api.get<ApiResponse<string[]>>('/destination/country');
-      return response.data?.data || [];
+      const response = await api.get<ApiResponse<Array<{ id: number; quoc_gia: string | null }>>>(`/destination/country`);
+      const data = response.data?.data || [];
+      // Extract unique country names
+      const countrySet = new Set<string>();
+      data.forEach(item => {
+        if (item.quoc_gia) {
+          countrySet.add(item.quoc_gia);
+        }
+      });
+      return Array.from(countrySet).sort();
     } catch (error) {
       console.error('Error fetching countries:', error);
       return [];
@@ -106,9 +114,9 @@ export const supplierTourService = {
   },
 
   // Get provinces by country
-  getProvincesByCountry: async (country: string): Promise<Destination[]> => {
+  getProvincesByCountry: async (country: string): Promise<Array<{ id: number; tinh: string | null }>> => {
     try {
-      const response = await api.get<ApiResponse<Destination[]>>(`/destination/province/${encodeURIComponent(country)}`);
+      const response = await api.get<ApiResponse<Array<{ id: number; tinh: string | null }>>>(`/destination/province/${encodeURIComponent(country)}`);
       return response.data?.data || [];
     } catch (error) {
       console.error('Error fetching provinces:', error);
@@ -117,9 +125,9 @@ export const supplierTourService = {
   },
 
   // Get cities by province
-  getCitiesByProvince: async (province: string): Promise<Destination[]> => {
+  getCitiesByProvince: async (province: string): Promise<Array<{ id: number; ten: string }>> => {
     try {
-      const response = await api.get<ApiResponse<Destination[]>>(`/destination/city/${encodeURIComponent(province)}`);
+      const response = await api.get<ApiResponse<Array<{ id: number; ten: string }>>>(`/destination/city/${encodeURIComponent(province)}`);
       return response.data?.data || [];
     } catch (error) {
       console.error('Error fetching cities:', error);
@@ -216,13 +224,31 @@ export const supplierTourService = {
     }
   },
 
-  // Update tour
-  updateTour: async (tourId: number, tourData: Partial<CreateTourRequest>): Promise<any> => {
+  // Update tour - matches UpdateTourRequest from backend
+  updateTour: async (tourId: number, tourData: {
+    tieu_de: string;
+    mo_ta?: string;
+    danh_muc_id?: number;
+    so_ngay: number;
+    so_dem?: number;
+    gia_nguoi_lon: number;
+    gia_tre_em: number;
+    don_vi_tien_te?: string;
+    trang_thai?: string;
+    noi_bat?: boolean;
+    nha_cung_cap_id: string; // UUID string
+  }): Promise<any> => {
     try {
+      console.log(`📡 API Request: PUT /tour/${tourId}`, tourData);
       const response = await api.put<ApiResponse<any>>(`/tour/${tourId}`, tourData);
+      console.log('✅ API Response:', response.data);
       return response.data?.data;
-    } catch (error) {
-      console.error('Error updating tour:', error);
+    } catch (error: any) {
+      console.error('❌ Error updating tour:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      }
       throw error;
     }
   },
@@ -236,6 +262,42 @@ export const supplierTourService = {
       return response.data?.data;
     } catch (error) {
       console.error('Error updating tour status:', error);
+      throw error;
+    }
+  },
+
+  // Update itinerary (lịch trình)
+  updateItinerary: async (itineraryId: number, data: {
+    ngay_thu?: number;
+    tieu_de?: string;
+    mo_ta?: string;
+    gio_bat_dau?: string;
+    gio_ket_thuc?: string;
+    dia_diem?: string;
+    thong_tin_luu_tru?: string;
+  }): Promise<any> => {
+    try {
+      const response = await api.put<ApiResponse<any>>(`/departure/lich-trinh/${itineraryId}`, data);
+      return response.data?.data;
+    } catch (error) {
+      console.error('Error updating itinerary:', error);
+      throw error;
+    }
+  },
+
+  // Update activity (hoạt động trong ngày)
+  updateActivity: async (activityId: number, data: {
+    ten?: string;
+    gio_bat_dau?: string;
+    gio_ket_thuc?: string;
+    mo_ta?: string;
+    thu_tu?: number;
+  }): Promise<any> => {
+    try {
+      const response = await api.put<ApiResponse<any>>(`/departure/hoat-dong-trong-ngay/${activityId}`, data);
+      return response.data?.data;
+    } catch (error) {
+      console.error('Error updating activity:', error);
       throw error;
     }
   },
@@ -381,6 +443,59 @@ export const supplierTourService = {
       console.error('Error fetching discounts:', error);
       // Return empty array if no discounts found or error
       return [];
+    }
+  },
+
+  // ==================== TOUR IMAGE MANAGEMENT ====================
+  
+  // Add image to tour
+  addTourImage: async (tourId: number, imageData: {
+    duong_dan: string;
+    mo_ta?: string;
+    la_anh_chinh?: boolean;
+    thu_tu_hien_thi?: number;
+  }): Promise<any> => {
+    try {
+      const response = await api.post<ApiResponse<any>>(`/departure/add-hinh-anh/${tourId}`, imageData);
+      return response.data?.data;
+    } catch (error: any) {
+      console.error('Error adding tour image:', error);
+      throw new Error(error.response?.data?.error || 'Không thể thêm hình ảnh');
+    }
+  },
+
+  // Delete image from tour
+  deleteTourImage: async (imageId: number): Promise<void> => {
+    try {
+      await api.delete(`/departure/delete-hinh-anh/${imageId}`);
+    } catch (error: any) {
+      console.error('Error deleting tour image:', error);
+      throw new Error(error.response?.data?.error || 'Không thể xóa hình ảnh');
+    }
+  },
+
+  // ==================== TOUR DESTINATION MANAGEMENT ====================
+  
+  // Add destination to tour
+  addTourDestination: async (tourId: number, destinationData: {
+    diem_den_id: number;
+    thu_tu_tham_quan?: number;
+  }): Promise<void> => {
+    try {
+      await api.post(`/departure/add-tour-destination/${tourId}`, destinationData);
+    } catch (error: any) {
+      console.error('Error adding tour destination:', error);
+      throw new Error(error.response?.data?.error || 'Không thể thêm điểm đến');
+    }
+  },
+
+  // Delete destination from tour
+  deleteTourDestination: async (tourId: number, diemDenId: number): Promise<void> => {
+    try {
+      await api.delete(`/departure/delete-tour-destination/${tourId}/${diemDenId}`);
+    } catch (error: any) {
+      console.error('Error deleting tour destination:', error);
+      throw new Error(error.response?.data?.error || 'Không thể xóa điểm đến');
     }
   },
 };

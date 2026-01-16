@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supplierTourService, type Destination } from '../../services/supplierTourService';
+import { supplierTourService } from '../../services/supplierTourService';
 
 interface CascadingDestinationSelectorProps {
   value: number;
@@ -15,8 +15,8 @@ export const CascadingDestinationSelector: React.FC<CascadingDestinationSelector
   className = "input-field"
 }) => {
   const [countries, setCountries] = useState<string[]>([]);
-  const [provinces, setProvinces] = useState<Destination[]>([]);
-  const [cities, setCities] = useState<Destination[]>([]);
+  const [provinces, setProvinces] = useState<Array<{ id: number; tinh: string | null }>>([]);
+  const [cities, setCities] = useState<Array<{ id: number; ten: string }>>([]);
   
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedProvince, setSelectedProvince] = useState<string>('');
@@ -101,10 +101,12 @@ export const CascadingDestinationSelector: React.FC<CascadingDestinationSelector
   // Update final value when city changes (call parent onChange)
   useEffect(() => {
     if (selectedCity) {
-      const cityId = parseInt(selectedCity);
-      onChangeRef.current(cityId);
+      const selectedCityObj = cities.find(c => c.id.toString() === selectedCity || c.ten === selectedCity);
+      if (selectedCityObj) {
+        onChangeRef.current(selectedCityObj.id);
+      }
     }
-  }, [selectedCity]);
+  }, [selectedCity, cities]);
 
   const handleCountryChange = (country: string) => {
     setSelectedCountry(country);
@@ -121,7 +123,7 @@ export const CascadingDestinationSelector: React.FC<CascadingDestinationSelector
   // Get display text for selected destination
   const getDisplayText = () => {
     if (selectedCity && cities.length > 0) {
-      const city = cities.find(c => c.id.toString() === selectedCity);
+      const city = cities.find(c => c.id.toString() === selectedCity || c.ten === selectedCity);
       return city ? `${city.ten} - ${selectedProvince} - ${selectedCountry}` : placeholder;
     }
     return placeholder;
@@ -165,8 +167,8 @@ export const CascadingDestinationSelector: React.FC<CascadingDestinationSelector
         >
           <option value="">Chọn tỉnh/thành phố</option>
           {provinces.map(province => (
-            <option key={province.id} value={province.ten || ''}>
-              {province.ten}
+            <option key={province.id} value={province.tinh || ''}>
+              {province.tinh || ''}
             </option>
           ))}
         </select>

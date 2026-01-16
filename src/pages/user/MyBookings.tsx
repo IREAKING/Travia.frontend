@@ -4,7 +4,7 @@ import { MainLayout } from '../../components/layout/MainLayout';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoadingSpinner } from '../../components/common/Loading';
 import { formatCurrency, formatDate, getStatusText } from '../../utils/formatters';
-import { bookingService } from '../../services/bookingService';
+import { bookingService, type CalculateRefundData } from '../../services/bookingService';
 import { paymentService } from '../../services/paymentService';
 import { ticketService } from '../../services/ticketService';
 import { useToast } from '../../hooks/useToast';
@@ -46,6 +46,10 @@ export const MyBookingsPage = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<BookingDisplay | null>(null);
   const [downloadingTicket, setDownloadingTicket] = useState<number | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [refundInfo, setRefundInfo] = useState<CalculateRefundData | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const handleDownloadTicket = async (bookingId: number) => {
     try {
@@ -89,6 +93,38 @@ export const MyBookingsPage = () => {
         showToast(errorMessage, 'error');
       }
       setProcessingPayment(null);
+    }
+  };
+
+  const handleCalculateRefund = async (booking: BookingDisplay) => {
+    try {
+      setSelectedBooking(booking);
+      const response = await bookingService.calculateRefundAmount(booking.id);
+      setRefundInfo(response.data);
+      setShowRefundModal(true);
+    } catch (error: any) {
+      console.error('Error calculating refund:', error);
+      showToast(error.response?.data?.error || 'Không thể tính số tiền hoàn lại', 'error');
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    if (!selectedBooking) return;
+
+    try {
+      setCancelling(true);
+      const response = await bookingService.cancelBooking(selectedBooking.id);
+      showToast(response.message, 'success');
+      setShowCancelModal(false);
+      setShowRefundModal(false);
+      setSelectedBooking(null);
+      setRefundInfo(null);
+      await loadBookings();
+    } catch (error: any) {
+      console.error('Error cancelling booking:', error);
+      showToast(error.response?.data?.error || 'Không thể hủy đặt chỗ', 'error');
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -301,7 +337,7 @@ export const MyBookingsPage = () => {
           </span>
           
           <h1 className="text-5xl md:text-7xl font-black mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
-            <span className="text-white">Đặt Chỗ </span>
+            <span className="text-white">Đặt chỗ </span>
             <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               Của Tôi
             </span>
@@ -579,14 +615,20 @@ export const MyBookingsPage = () => {
                               </button>
                             )}
                             
-                            {(booking.status === 'cho_xac_nhan') && booking.payment_status === 'paid' && (
-                              <button className="px-6 py-3 bg-rose-500/20 border-2 border-rose-500/30 text-rose-400 font-semibold rounded-xl hover:bg-rose-500/30 hover:border-rose-500/50 transition-all duration-300 flex items-center gap-2">
+                            {/* Nút hủy đặt chỗ - chỉ hiển thị khi chưa hủy, chưa hoàn thành và tour chưa hoàn thành */}
+                            {(booking.status !== 'da_huy' && 
+                              booking.status !== 'hoan_thanh' && 
+                              !(booking.status === 'da_thanh_toan' && booking.departure_status === 'hoan_thanh')) && (
+                              <button
+                                onClick={() => handleCalculateRefund(booking)}
+                                className="px-6 py-3 bg-rose-500/20 border-2 border-rose-500/30 text-rose-400 font-semibold rounded-xl hover:bg-rose-500/30 hover:border-rose-500/50 transition-all duration-300 flex items-center gap-2"
+                              >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                              Hủy đặt chỗ
-                            </button>
-                          )}
+                                Hủy đặt chỗ
+                              </button>
+                            )}
                             {(booking.status === 'da_xac_nhan' || booking.status === 'da_thanh_toan' || booking.status === 'hoan_thanh') && booking.payment_status === 'paid' && (
                               <button
                                 onClick={() => handleDownloadTicket(booking.id)}
@@ -745,6 +787,112 @@ export const MyBookingsPage = () => {
                 setSelectedBooking(null);
               }}
             />
+          </div>
+        </Modal>
+      )}
+
+      {/* Refund Info Modal */}
+      {showRefundModal && refundInfo && selectedBooking && (
+        <Modal
+          isOpen={showRefundModal}
+          onClose={() => {
+            setShowRefundModal(false);
+            setRefundInfo(null);
+            setSelectedBooking(null);
+          }}
+          title="Thông Tin Hoàn Tiền"
+        >
+          <div className="space-y-4">
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <p className="text-slate-400 mb-2">Tour: {selectedBooking.tour_title}</p>
+              <p className="text-slate-400 mb-2">Ngày khởi hành: {formatDate(selectedBooking.departure_date)}</p>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Tổng tiền:</span>
+                <span className="text-white font-semibold">{formatCurrency(refundInfo.tong_tien, selectedBooking.currency)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Tỷ lệ hoàn:</span>
+                <span className="text-emerald-400 font-bold">{refundInfo.phan_tram_hoan}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Số tiền hoàn lại:</span>
+                <span className="text-emerald-400 font-bold text-lg">{formatCurrency(refundInfo.so_tien_hoan, selectedBooking.currency)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Số ngày trước khởi hành:</span>
+                <span className="text-white">{refundInfo.so_ngay_truoc_khoi_hanh} ngày</span>
+              </div>
+              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                <p className="text-blue-400 text-sm">{refundInfo.ly_do}</p>
+              </div>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <button
+                onClick={() => {
+                  setShowRefundModal(false);
+                  setShowCancelModal(true);
+                }}
+                className="flex-1 px-4 py-2 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition-all"
+              >
+                Xác nhận hủy
+              </button>
+              <button
+                onClick={() => {
+                  setShowRefundModal(false);
+                  setRefundInfo(null);
+                  setSelectedBooking(null);
+                }}
+                className="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-all"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal && selectedBooking && (
+        <Modal
+          isOpen={showCancelModal}
+          onClose={() => {
+            setShowCancelModal(false);
+            setSelectedBooking(null);
+          }}
+          title="Xác Nhận Hủy Đặt Chỗ"
+        >
+          <div className="space-y-4">
+            <p className="text-slate-300">
+              Bạn có chắc chắn muốn hủy đặt chỗ cho tour <strong>{selectedBooking.tour_title}</strong>?
+            </p>
+            {refundInfo && (
+              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-4">
+                <p className="text-emerald-400 font-semibold mb-2">Số tiền hoàn lại: {formatCurrency(refundInfo.so_tien_hoan, selectedBooking.currency)}</p>
+                <p className="text-slate-400 text-sm">{refundInfo.ly_do}</p>
+              </div>
+            )}
+            <div className="flex gap-2 pt-4">
+              <button
+                onClick={handleCancelBooking}
+                disabled={cancelling}
+                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50"
+              >
+                {cancelling ? 'Đang xử lý...' : 'Xác nhận hủy'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowCancelModal(false);
+                  setSelectedBooking(null);
+                  setRefundInfo(null);
+                }}
+                className="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-all"
+                disabled={cancelling}
+              >
+                Hủy
+              </button>
+            </div>
           </div>
         </Modal>
       )}

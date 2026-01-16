@@ -24,6 +24,7 @@ type SupplierWithUser = Omit<Supplier, 'id'> & {
   xac_thuc?: boolean;
   logo?: string;
   ho_ten?: string; // From admin endpoint
+  giay_to_kinh_doanh?: string; // Business license PDF URL
 };
 
 export const SupplierManagement = () => {
@@ -138,6 +139,95 @@ export const SupplierManagement = () => {
     }
   };
 
+  const extractFileNameFromUrl = (url: string): string => {
+    try {
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split('/');
+      // Find the filename after bucket name
+      const bucketIndex = pathParts.findIndex(part => part === 'giay_phep_kinh_doanh');
+      if (bucketIndex !== -1 && bucketIndex + 1 < pathParts.length) {
+        return pathParts.slice(bucketIndex + 1).join('/');
+      } else {
+        // Fallback: get last part of path
+        return pathParts[pathParts.length - 1];
+      }
+    } catch (e) {
+      // If URL parsing fails, try to extract from string
+      const match = url.match(/giay_phep_kinh_doanh\/([^?]+)/);
+      if (match) {
+        return match[1];
+      }
+      throw new Error('Không thể trích xuất tên file từ URL');
+    }
+  };
+
+  const handleViewLicense = async (url: string) => {
+    try {
+      // Extract fileName from URL
+      const fileName = extractFileNameFromUrl(url);
+
+      if (!fileName) {
+        throw new Error('Không tìm thấy tên file trong URL');
+      }
+
+      // Get signed URL from backend
+      showToast('Đang tải giấy phép kinh doanh...', 'info');
+      const signedUrl = await adminService.getSignedPDFUrl(fileName);
+
+      // Open PDF in new tab
+      window.open(signedUrl, '_blank');
+      showToast('Đã mở giấy phép kinh doanh', 'success');
+    } catch (error: any) {
+      console.error('Error viewing license:', error);
+      const errorMessage = error?.response?.data?.error || error?.message || 'Không thể mở file';
+      showToast(errorMessage, 'error');
+      
+      // Fallback: try to open original URL in new tab
+      try {
+        window.open(url, '_blank');
+      } catch (e) {
+        console.error('Failed to open URL:', e);
+      }
+    }
+  };
+
+  const handleDownloadLicense = async (url: string) => {
+    try {
+      // Extract fileName from URL
+      const fileName = extractFileNameFromUrl(url);
+
+      if (!fileName) {
+        throw new Error('Không tìm thấy tên file trong URL');
+      }
+
+      // Get signed URL from backend
+      showToast('Đang lấy link tải file...', 'info');
+      const signedUrl = await adminService.getSignedPDFUrl(fileName);
+
+      // Download file from signed URL
+      const response = await fetch(signedUrl);
+      if (!response.ok) {
+        throw new Error('Không thể tải file');
+      }
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `giay-phep-kinh-doanh-${selectedSupplier?.id || 'file'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
+      showToast('Tải file PDF thành công!', 'success');
+    } catch (error: any) {
+      console.error('Error downloading license:', error);
+      const errorMessage = error?.response?.data?.error || error?.message || 'Không thể tải file';
+      showToast(errorMessage, 'error');
+    }
+  };
+
 
   const filteredSuppliers = (suppliers || []).filter(supplier => {
     const matchesSearch = supplier.ten?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -177,7 +267,7 @@ export const SupplierManagement = () => {
                 </div>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white mb-1">Quản Lý Nhà Cung Cấp</h1>
+                <h1 className="text-3xl font-bold text-white mb-1">Quản lý nhà cung cấp</h1>
                 <p className="text-slate-400">Quản lý danh sách nhà cung cấp trong hệ thống</p>
               </div>
             </div>
@@ -311,10 +401,10 @@ export const SupplierManagement = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider py-4 px-6">Nhà Cung Cấp</th>
-                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider py-4 px-6">Thông Tin Liên Hệ</th>
+                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider py-4 px-6">Nhà cung cấp</th>
+                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider py-4 px-6">Thông tin liên hệ</th>
                   <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider py-4 px-6">Trạng Thái</th>
-                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider py-4 px-6">Ngày Tạo</th>
+                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider py-4 px-6">Ngày tạo</th>
                   <th className="text-right text-xs font-semibold text-slate-400 uppercase tracking-wider py-4 px-6">Thao Tác</th>
                 </tr>
               </thead>
@@ -497,7 +587,7 @@ export const SupplierManagement = () => {
       >
         {selectedSupplier && (
           <div className="bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Chi tiết Nhà Cung Cấp</h2>
+            <h2 className="text-2xl font-bold text-white mb-6">Chi tiết nhà cung cấp</h2>
             
             <div className="space-y-6">
               {/* Logo and Basic Info */}
@@ -527,7 +617,7 @@ export const SupplierManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Contact Information */}
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                  <h4 className="text-sm font-semibold text-slate-400 uppercase mb-4">Thông Tin Liên Hệ</h4>
+                  <h4 className="text-sm font-semibold text-slate-400 uppercase mb-4">Thông tin liên hệ</h4>
                   <div className="space-y-3">
                     {selectedSupplier.ho_ten && (
                       <div>
@@ -566,7 +656,7 @@ export const SupplierManagement = () => {
 
                 {/* Company Information */}
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                  <h4 className="text-sm font-semibold text-slate-400 uppercase mb-4">Thông Tin Công Ty</h4>
+                  <h4 className="text-sm font-semibold text-slate-400 uppercase mb-4">Thông tin công ty</h4>
                   <div className="space-y-3">
                     {selectedSupplier.nam_thanh_lap && (
                       <div>
@@ -635,10 +725,46 @@ export const SupplierManagement = () => {
                 </div>
               </div>
 
+              {/* Business License */}
+              {selectedSupplier.giay_to_kinh_doanh && (
+                <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
+                  <h4 className="text-sm font-semibold text-slate-400 uppercase mb-4">Giấy phép kinh doanh</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">File PDF</p>
+                      <p className="text-white text-sm truncate break-all">{selectedSupplier.giay_to_kinh_doanh}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleViewLicense(selectedSupplier.giay_to_kinh_doanh!)}
+                        className="flex-1 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
+                        title="Xem giấy phép kinh doanh"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Xem giấy phép kinh doanh
+                      </button>
+                      <button
+                        onClick={() => handleDownloadLicense(selectedSupplier.giay_to_kinh_doanh!)}
+                        className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
+                        title="Tải file PDF"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Tải xuống
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Dates */}
               {(selectedSupplier.ngay_tao || selectedSupplier.ngay_cap_nhat) && (
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                  <h4 className="text-sm font-semibold text-slate-400 uppercase mb-4">Thông Tin Thời Gian</h4>
+                  <h4 className="text-sm font-semibold text-slate-400 uppercase mb-4">Thông tin thời gian</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {selectedSupplier.ngay_tao && (
                       <div>

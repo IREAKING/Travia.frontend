@@ -2,14 +2,14 @@ import { MainLayout } from '../../components/layout/MainLayout';
 
 export const TermsPage = () => {
   const sections = [
-    { title: 'Chấp Nhận Điều Khoản', content: ['Bằng việc truy cập và sử dụng website Travia.vn, bạn đồng ý tuân thủ và bị ràng buộc bởi các điều khoản và điều kiện sử dụng.', 'Nếu bạn không đồng ý với bất kỳ phần nào của các điều khoản này, vui lòng không sử dụng dịch vụ.'] },
-    { title: 'Định Nghĩa', list: ['"Travia" hoặc "Chúng tôi" đề cập đến công ty Travia và các dịch vụ.', '"Khách hàng" hoặc "Bạn" đề cập đến người sử dụng dịch vụ.', '"Dịch vụ" đề cập đến các tour du lịch và dịch vụ đặt chỗ.', '"Website" đề cập đến trang web Travia.vn.'] },
-    { title: 'Đăng Ký Tài Khoản', content: ['Để sử dụng một số tính năng, bạn cần tạo tài khoản. Bạn cam kết:'], list: ['Cung cấp thông tin chính xác, đầy đủ và cập nhật', 'Duy trì và cập nhật thông tin tài khoản', 'Bảo mật mật khẩu và chịu trách nhiệm cho tất cả hoạt động', 'Thông báo ngay về bất kỳ việc sử dụng trái phép nào'] },
-    { title: 'Đặt Tour và Thanh Toán', content: ['Khi đặt tour, bạn đồng ý:'], list: ['Cung cấp thông tin chính xác về số lượng khách', 'Thanh toán đầy đủ theo thời hạn quy định', 'Tuân thủ các quy định về hủy và hoàn tiền', 'Chịu trách nhiệm cho các chi phí phát sinh'] },
-    { title: 'Trách Nhiệm của Khách Hàng', content: ['Trong quá trình sử dụng dịch vụ, bạn cam kết:'], list: ['Tuân thủ pháp luật Việt Nam và quốc tế', 'Không sử dụng dịch vụ cho mục đích bất hợp pháp', 'Không can thiệp vào hoạt động bình thường của website', 'Tôn trọng quyền sở hữu trí tuệ'] },
-    { title: 'Giới Hạn Trách Nhiệm', content: ['Travia không chịu trách nhiệm cho:'], list: ['Thiệt hại gián tiếp, đặc biệt hoặc hậu quả', 'Mất mát dữ liệu, lợi nhuận hoặc cơ hội kinh doanh', 'Hành vi của các nhà cung cấp dịch vụ bên thứ ba', 'Thiên tai, dịch bệnh hoặc các sự kiện bất khả kháng'] },
-    { title: 'Thay Đổi Điều Khoản', content: ['Chúng tôi có quyền thay đổi các điều khoản này bất cứ lúc nào. Các thay đổi sẽ có hiệu lực ngay khi được đăng tải trên website.', 'Việc tiếp tục sử dụng dịch vụ sau khi có thay đổi được coi là bạn đã chấp nhận các điều khoản mới.'] },
-    { title: 'Luật Áp Dụng', content: ['Các điều khoản này được điều chỉnh bởi pháp luật Việt Nam. Mọi tranh chấp sẽ được giải quyết tại Tòa án có thẩm quyền tại Việt Nam.'] },
+    { title: 'Chấp nhận điều khoản', content: ['Bằng việc truy cập và sử dụng website Travia.vn, bạn đồng ý tuân thủ và bị ràng buộc bởi các điều khoản và điều kiện sử dụng.', 'Nếu bạn không đồng ý với bất kỳ phần nào của các điều khoản này, vui lòng không sử dụng dịch vụ.'] },
+    { title: 'Định nghĩa', list: ['"Travia" hoặc "Chúng tôi" đề cập đến công ty Travia và các dịch vụ.', '"Khách hàng" hoặc "Bạn" đề cập đến người sử dụng dịch vụ.', '"Dịch vụ" đề cập đến các tour du lịch và dịch vụ đặt chỗ.', '"Website" đề cập đến trang web Travia.vn.'] },
+    { title: 'Đăng ký tài khoản', content: ['Để sử dụng một số tính năng, bạn cần tạo tài khoản. Bạn cam kết:'], list: ['Cung cấp thông tin chính xác, đầy đủ và cập nhật', 'Duy trì và cập nhật thông tin tài khoản', 'Bảo mật mật khẩu và chịu trách nhiệm cho tất cả hoạt động', 'Thông báo ngay về bất kỳ việc sử dụng trái phép nào'] },
+    { title: 'Đặt tour và thanh toán', content: ['Khi đặt tour, bạn đồng ý:'], list: ['Cung cấp thông tin chính xác về số lượng khách', 'Thanh toán đầy đủ theo thời hạn quy định', 'Tuân thủ các quy định về hủy và hoàn tiền', 'Chịu trách nhiệm cho các chi phí phát sinh'] },
+    { title: 'Trách nhiệm của khách hàng', content: ['Trong quá trình sử dụng dịch vụ, bạn cam kết:'], list: ['Tuân thủ pháp luật Việt Nam và quốc tế', 'Không sử dụng dịch vụ cho mục đích bất hợp pháp', 'Không can thiệp vào hoạt động bình thường của website', 'Tôn trọng quyền sở hữu trí tuệ'] },
+    { title: 'Giới hạn trách nhiệm', content: ['Travia không chịu trách nhiệm cho:'], list: ['Thiệt hại gián tiếp, đặc biệt hoặc hậu quả', 'Mất mát dữ liệu, lợi nhuận hoặc cơ hội kinh doanh', 'Hành vi của các nhà cung cấp dịch vụ bên thứ ba', 'Thiên tai, dịch bệnh hoặc các sự kiện bất khả kháng'] },
+    { title: 'Thay đổi điều khoản', content: ['Chúng tôi có quyền thay đổi các điều khoản này bất cứ lúc nào. Các thay đổi sẽ có hiệu lực ngay khi được đăng tải trên website.', 'Việc tiếp tục sử dụng dịch vụ sau khi có thay đổi được coi là bạn đã chấp nhận các điều khoản mới.'] },
+    { title: 'Luật áp dụng', content: ['Các điều khoản này được điều chỉnh bởi pháp luật Việt Nam. Mọi tranh chấp sẽ được giải quyết tại Tòa án có thẩm quyền tại Việt Nam.'] },
   ];
 
   return (
@@ -26,8 +26,8 @@ export const TermsPage = () => {
             📜 Pháp Lý
           </span>
           <h1 className="text-5xl font-black mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-            <span className="text-white">Điều Khoản </span>
-            <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Dịch Vụ</span>
+            <span className="text-white">Điều khoản </span>
+            <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Dịch vụ</span>
           </h1>
           <p className="text-slate-400 text-lg">Cập nhật lần cuối: {new Date().toLocaleDateString('vi-VN')}</p>
         </div>
@@ -60,7 +60,7 @@ export const TermsPage = () => {
           <div className="mt-12 relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl opacity-50 blur-xl" />
             <div className="relative bg-slate-900/90 backdrop-blur-xl rounded-3xl p-10 border border-white/10 text-center">
-              <h3 className="text-2xl font-bold text-white mb-4">Có Câu Hỏi?</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">Có câu hỏi?</h3>
               <p className="text-slate-400 mb-8">Liên hệ với chúng tôi nếu bạn có thắc mắc về điều khoản</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="mailto:legal@travia.vn" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:scale-105">

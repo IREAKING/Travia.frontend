@@ -170,7 +170,7 @@ export const AdminDashboard = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-semibold text-white group-hover:text-amber-300 transition-colors">Báo Cáo Chi Tiết</p>
+                  <p className="font-semibold text-white group-hover:text-amber-300 transition-colors">Báo cáo chi tiết</p>
                   <p className="text-sm text-slate-400">Xem analytics đầy đủ</p>
                 </div>
               </div>

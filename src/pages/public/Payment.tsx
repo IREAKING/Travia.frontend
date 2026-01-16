@@ -470,7 +470,7 @@ export const PaymentPage = () => {
               </span>
               <h1 className="text-5xl md:text-6xl font-black text-white mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
                 <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Thanh Toán
+                  Thanh toán
                 </span>
               </h1>
               <p className="text-xl text-slate-400">Hoàn tất đặt tour của bạn</p>
@@ -486,7 +486,7 @@ export const PaymentPage = () => {
                       <span className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center text-xl">
                         👤
                       </span>
-                      Thông Tin Hành Khách
+                      Thông tin hành khách
                     </h2>
                     <div className="space-y-6">
                       {formData.passengers.map((passenger, index) => (
@@ -587,7 +587,7 @@ export const PaymentPage = () => {
                       <span className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-xl">
                         📧
                       </span>
-                      Thông Tin Liên Hệ
+                      Thông tin liên hệ
                     </h2>
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
@@ -637,7 +637,7 @@ export const PaymentPage = () => {
                       <span className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center text-xl">
                         💳
                       </span>
-                      Phương Thức Thanh Toán
+                      Phương thức thanh toán
                     </h2>
                     <div className="p-6 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border-2 border-cyan-500/30 rounded-xl backdrop-blur-sm">
                       <div className="flex items-center gap-4">
@@ -687,11 +687,11 @@ export const PaymentPage = () => {
                       <label htmlFor="terms" className="ml-3 text-sm text-white/80">
                         Tôi đồng ý với{' '}
                         <a href="/terms" className="text-cyan-400 hover:text-cyan-300 underline">
-                          Điều khoản và Điều kiện
+                          Điều khoản và điều kiện
                         </a>{' '}
                         và{' '}
                         <a href="/privacy" className="text-cyan-400 hover:text-cyan-300 underline">
-                          Chính sách Bảo mật
+                          Chính sách bảo mật
                         </a>{' '}
                         của Travia
                       </label>

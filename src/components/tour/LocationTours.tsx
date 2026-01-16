@@ -90,7 +90,7 @@ export const LocationTours = ({ limit = 10, title }: LocationToursProps) => {
             <div className="flex items-center gap-3">
               <div className="w-1 h-8 bg-gradient-to-b from-cyan-500 to-purple-500 rounded-full" />
               <div>
-                <h3 className="text-2xl font-bold text-white">Tour Quốc Nội</h3>
+                <h3 className="text-2xl font-bold text-white">Tour quốc nội</h3>
                 <p className="text-slate-400 text-sm">Các tour trong nước phù hợp với bạn</p>
               </div>
             </div>
@@ -122,7 +122,7 @@ export const LocationTours = ({ limit = 10, title }: LocationToursProps) => {
             <div className="flex items-center gap-3">
               <div className="w-1 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full" />
               <div>
-                <h3 className="text-2xl font-bold text-white">Tour Quốc Tế</h3>
+                <h3 className="text-2xl font-bold text-white">Tour quốc tế</h3>
                 <p className="text-slate-400 text-sm">Khám phá các điểm đến quốc tế</p>
               </div>
             </div>

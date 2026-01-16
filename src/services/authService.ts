@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { LoginRequest, AuthResponse, RegisterRequest, OTPRequest, ChangePasswordRequest, ApiResponse } from '../types';
+import type { LoginRequest, AuthResponse, RegisterRequest, OTPRequest, ChangePasswordRequest, ApiResponse, RequestPasswordResetRequest, VerifyOTPRequest, ResetPasswordRequest } from '../types';
 
 // User login
 export const loginUser = async (credentials: LoginRequest): Promise<AuthResponse> => {
@@ -103,6 +103,24 @@ export const changePassword = async (data: ChangePasswordRequest): Promise<{ mes
   return { message: response.data.message || 'Đổi mật khẩu thành công' };
 };
 
+// Forgot Password - Step 1: Request OTP
+export const requestPasswordReset = async (data: RequestPasswordResetRequest): Promise<{ message: string }> => {
+  const response = await api.post<{ message: string }>('/auth/forgot-password/request', data);
+  return response.data;
+};
+
+// Forgot Password - Step 2: Verify OTP
+export const verifyPasswordResetOTP = async (data: VerifyOTPRequest): Promise<{ message: string; verified: boolean; otp_id?: number }> => {
+  const response = await api.post<{ message: string; verified: boolean; otp_id?: number }>('/auth/forgot-password/verify', data);
+  return response.data;
+};
+
+// Forgot Password - Step 3: Reset Password
+export const resetPassword = async (data: ResetPasswordRequest): Promise<{ message: string }> => {
+  const response = await api.post<{ message: string }>('/auth/forgot-password/reset', data);
+  return response.data;
+};
+
 export const authService = {
   loginUser,
   loginAdmin,
@@ -116,4 +134,7 @@ export const authService = {
   storeAuthData,
   getOAuthUrl,
   changePassword,
+  requestPasswordReset,
+  verifyPasswordResetOTP,
+  resetPassword,
 };

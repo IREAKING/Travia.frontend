@@ -22,7 +22,7 @@ export const reviewService = {
   ): Promise<ReviewsResponse> => {
     try {
       const response = await api.get<{ data: ReviewsResponse[] }>(
-        `/tour/${tourId}/reviews`
+        `/review/tour/${tourId}`
       );
       
       // Kiểm tra response.data và response.data.data trước khi truy cập

@@ -4,6 +4,7 @@ import { AdminSidebar } from '../../components/layout/AdminSidebar';
 import { LoadingSpinner } from '../../components/common/Loading';
 import { useToast } from '../../hooks/useToast';
 import { formatCurrency } from '../../utils/formatters';
+import { adminService } from '../../services/adminService';
 import type { RecentBooking } from '../../types';
 
 type BookingStatus = 'all' | 'cho_xac_nhan' | 'da_xac_nhan' | 'da_thanh_toan' | 'hoan_thanh' | 'da_huy';
@@ -33,32 +34,115 @@ const getStatusString = (status: any): string | null => {
   return String(status);
 };
 
+interface BookingStatistics {
+  tong_so_booking: number;
+  cho_xac_nhan: number;
+  da_xac_nhan: number;
+  da_thanh_toan: number;
+  hoan_thanh: number;
+  da_huy: number;
+  tong_tien: number;
+  tong_doanh_thu: number;
+  tong_tien_da_huy: number;
+  tong_so_khach_hang: number;
+  tong_so_tour: number;
+  tong_so_nha_cung_cap: number;
+  tong_so_khach: number;
+  tong_so_khach_thanh_cong: number;
+  gia_tri_trung_binh: number;
+  gia_tri_trung_binh_thanh_cong: number;
+}
+
 export const BookingManagementPage = () => {
   const { showToast } = useToast();
   const [bookings, setBookings] = useState<RecentBooking[]>([]);
+  const [statistics, setStatistics] = useState<BookingStatistics | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus>('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [supplierId, setSupplierId] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 10;
   const [selectedBooking, setSelectedBooking] = useState<RecentBooking | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
     loadBookings();
-  }, []);
+  }, [currentPage, statusFilter, startDate, endDate, supplierId, searchTerm]);
+
+  useEffect(() => {
+    loadStatistics();
+  }, [startDate, endDate, supplierId, statusFilter]);
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (currentPage === 1) {
+        loadBookings();
+      } else {
+        setCurrentPage(1);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const loadBookings = async () => {
     try {
       setLoading(true);
-      // TODO: Implement getRecentBookings service function
-      // const data = await adminService.getRecentBookings(100);
-      // setBookings(data || []);
+      const params: any = {
+        page: currentPage,
+        limit: pageSize,
+      };
+      
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
+      if (supplierId) params.supplier_id = supplierId;
+      if (statusFilter !== 'all') params.trang_thai = statusFilter;
+      if (searchTerm) params.search = searchTerm;
+
+      console.log('📡 Loading bookings with params:', params);
+      const result = await adminService.getAllBookings(params);
+      console.log('📦 Bookings result:', result);
+      
+      setBookings(result.data || []);
+      setTotalCount(result.total || 0);
+      setTotalPages(result.total_pages || 1);
+    } catch (error: any) {
+      console.error('❌ Error loading bookings:', error);
+      console.error('Error response:', error?.response?.data);
+      showToast(
+        error?.response?.data?.error || error?.response?.data?.message || 'Không thể tải danh sách đặt chỗ',
+        'error'
+      );
       setBookings([]);
-      showToast('Service function not implemented', 'error');
-    } catch (error) {
-      console.error('Error loading bookings:', error);
-      showToast('Không thể tải danh sách đặt chỗ', 'error');
+      setTotalCount(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadStatistics = async () => {
+    try {
+      const params: any = {};
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
+      if (supplierId) params.supplier_id = supplierId;
+      if (statusFilter !== 'all') params.trang_thai = statusFilter;
+
+      const stats = await adminService.getBookingStatistics(params);
+      setStatistics(stats);
+    } catch (error: any) {
+      console.error('Error loading statistics:', error);
+      showToast(
+        error?.response?.data?.error || 'Không thể tải thống kê đặt chỗ',
+        'error'
+      );
     }
   };
 
@@ -75,17 +159,18 @@ export const BookingManagementPage = () => {
     }
   };
 
-  const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = 
-      booking.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.tour_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (booking.id || booking.booking_id)?.toString().includes(searchTerm);
-    const statusStr = getStatusString(booking.trang_thai || booking.status);
-    const matchesStatus = statusFilter === 'all' || statusStr === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Search is now handled by backend, but we can still filter locally if needed
+  const filteredBookings = bookings;
 
-  const stats = {
+  // Use statistics from API if available, otherwise use local calculations
+  const stats = statistics ? {
+    total: statistics.tong_so_booking,
+    pending: statistics.cho_xac_nhan,
+    confirmed: statistics.da_xac_nhan,
+    paid: statistics.da_thanh_toan,
+    completed: statistics.hoan_thanh,
+    cancelled: statistics.da_huy,
+  } : {
     total: bookings.length,
     pending: bookings.filter(b => getStatusString(b.trang_thai || b.status) === 'cho_xac_nhan').length,
     confirmed: bookings.filter(b => getStatusString(b.trang_thai || b.status) === 'da_xac_nhan').length,
@@ -94,7 +179,7 @@ export const BookingManagementPage = () => {
     cancelled: bookings.filter(b => getStatusString(b.trang_thai || b.status) === 'da_huy').length,
   };
 
-  const totalRevenue = bookings
+  const totalRevenue = statistics?.tong_doanh_thu || bookings
     .filter(b => {
       const status = getStatusString(b.trang_thai || b.status);
       return status === 'da_thanh_toan' || status === 'hoan_thanh';
@@ -185,17 +270,48 @@ export const BookingManagementPage = () => {
         </div>
       </div>
 
+      {/* Statistics Summary Cards */}
+      {statistics && (
+        <div className="grid md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-slate-900/90 backdrop-blur-xl rounded-xl p-5 border border-white/10">
+            <p className="text-slate-400 text-sm mb-2">Tổng số khách hàng</p>
+            <p className="text-2xl font-bold text-white">{statistics.tong_so_khach_hang}</p>
+            <p className="text-xs text-slate-500 mt-1">{statistics.tong_so_khach} khách</p>
+          </div>
+          <div className="bg-slate-900/90 backdrop-blur-xl rounded-xl p-5 border border-white/10">
+            <p className="text-slate-400 text-sm mb-2">Tổng số tour</p>
+            <p className="text-2xl font-bold text-white">{statistics.tong_so_tour}</p>
+            <p className="text-xs text-slate-500 mt-1">{statistics.tong_so_nha_cung_cap} nhà cung cấp</p>
+          </div>
+          <div className="bg-slate-900/90 backdrop-blur-xl rounded-xl p-5 border border-white/10">
+            <p className="text-slate-400 text-sm mb-2">Giá trị trung bình</p>
+            <p className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              {formatCurrency(statistics.gia_tri_trung_binh_thanh_cong || 0, 'VND')}
+            </p>
+            <p className="text-xs text-slate-500 mt-1">Booking thành công</p>
+          </div>
+          <div className="bg-slate-900/90 backdrop-blur-xl rounded-xl p-5 border border-white/10">
+            <p className="text-slate-400 text-sm mb-2">Tổng tiền đã hủy</p>
+            <p className="text-2xl font-bold text-rose-400">
+              {formatCurrency(statistics.tong_tien_da_huy || 0, 'VND')}
+            </p>
+            <p className="text-xs text-slate-500 mt-1">{statistics.da_huy} booking</p>
+          </div>
+        </div>
+      )}
+
       {/* Filters */}
       <div className="bg-slate-900/90 backdrop-blur-xl rounded-2xl p-6 mb-8 border border-white/10">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex-1">
+        <div className="grid md:grid-cols-5 gap-4 mb-4">
+          <div className="md:col-span-2">
+            <label className="block text-sm text-slate-400 mb-2">Tìm kiếm</label>
             <div className="relative">
               <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
                 type="text"
-                placeholder="Tìm theo mã đặt chỗ, tên khách hàng, tour..."
+                placeholder="Mã đặt chỗ, tên khách hàng, tour..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-transparent transition-all"
@@ -203,13 +319,34 @@ export const BookingManagementPage = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div>
+            <label className="block text-sm text-slate-400 mb-2">Từ ngày</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-400 mb-2">Đến ngày</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-400 mb-2">Trạng thái</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as BookingStatus)}
-              className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50"
             >
-              <option value="all" className="bg-slate-900">Tất cả trạng thái</option>
+              <option value="all" className="bg-slate-900">Tất cả</option>
               <option value="cho_xac_nhan" className="bg-slate-900">Chờ xác nhận</option>
               <option value="da_xac_nhan" className="bg-slate-900">Đã xác nhận</option>
               <option value="da_thanh_toan" className="bg-slate-900">Đã thanh toán</option>
@@ -219,13 +356,58 @@ export const BookingManagementPage = () => {
           </div>
         </div>
 
-        <div className="mt-4 text-sm text-slate-400">
-          Hiển thị <span className="font-semibold text-white">{filteredBookings.length}</span> đặt chỗ
+        <div className="flex items-center justify-between pt-4 border-t border-white/10">
+          <div className="text-sm text-slate-400">
+            Hiển thị <span className="font-semibold text-white">{bookings.length}</span> / <span className="font-semibold text-white">{totalCount}</span> đặt chỗ
+            {statistics && (
+              <span className="ml-2">
+                • Trang <span className="font-semibold text-white">{currentPage}</span> / {totalPages}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              setStartDate('');
+              setEndDate('');
+              setSupplierId('');
+              setStatusFilter('all');
+              setSearchTerm('');
+              setCurrentPage(1);
+            }}
+            className="px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+          >
+            Xóa bộ lọc
+          </button>
         </div>
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mb-6">
+          <div className="text-sm text-slate-400">
+            Trang {currentPage} / {totalPages} • Tổng {totalCount} booking
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+            >
+              Trước
+            </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+            >
+              Sau
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Bookings Table */}
-      {filteredBookings.length === 0 ? (
+      {filteredBookings.length === 0 && !loading ? (
         <div className="bg-slate-900/90 backdrop-blur-xl rounded-2xl p-12 text-center border border-white/10">
           <div className="w-20 h-20 mx-auto mb-6 bg-slate-800 rounded-2xl flex items-center justify-center border border-white/10">
             <svg className="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

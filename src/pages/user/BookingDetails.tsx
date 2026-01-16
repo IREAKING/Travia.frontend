@@ -241,7 +241,20 @@ export const BookingDetailsPage = () => {
     showToast('Đang tải vé điện tử...', 'info');
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusString = (status: any): string => {
+    if (!status) return 'unknown';
+    if (typeof status === 'string') return status;
+    if (typeof status === 'object') {
+      const statusStr = status.trang_thai_dat_cho || status.TrangThaiDatCho;
+      if (statusStr) {
+        return status.valid === false ? 'unknown' : statusStr;
+      }
+    }
+    return String(status);
+  };
+
+  const getStatusColor = (status: any) => {
+    const statusStr = getStatusString(status);
     const colors: { [key: string]: string } = {
       'cho_xac_nhan': 'bg-yellow-100 text-yellow-800',
       'da_xac_nhan': 'bg-blue-100 text-blue-800',
@@ -249,10 +262,11 @@ export const BookingDetailsPage = () => {
       'da_huy': 'bg-red-100 text-red-800',
       'hoan_thanh': 'bg-purple-100 text-purple-800'
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[statusStr] || 'bg-gray-100 text-gray-800';
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: any) => {
+    const statusStr = getStatusString(status);
     const texts: { [key: string]: string } = {
       'cho_xac_nhan': 'Chờ xác nhận',
       'da_xac_nhan': 'Đã xác nhận',
@@ -260,7 +274,7 @@ export const BookingDetailsPage = () => {
       'da_huy': 'Đã hủy',
       'hoan_thanh': 'Hoàn thành'
     };
-    return texts[status] || status;
+    return texts[statusStr] || statusStr;
   };
 
   const canCancel = booking?.trang_thai === 'cho_xac_nhan' || booking?.trang_thai === 'da_xac_nhan';
@@ -332,7 +346,7 @@ export const BookingDetailsPage = () => {
               <div className="lg:col-span-2 space-y-8">
                 {/* Tour Information */}
                 <div className="bg-white rounded-2xl p-8 shadow-lg">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông Tin Tour</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông tin tour</h2>
                   <div className="flex items-start space-x-6">
                     <img
                       src={booking.tour.anh}
@@ -364,7 +378,7 @@ export const BookingDetailsPage = () => {
 
                 {/* Departure Information */}
                 <div className="bg-white rounded-2xl p-8 shadow-lg">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông Tin Khởi Hành</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông tin khởi hành</h2>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">Lịch Trình</h3>
@@ -404,7 +418,7 @@ export const BookingDetailsPage = () => {
 
                 {/* Passenger Information */}
                 <div className="bg-white rounded-2xl p-8 shadow-lg">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông Tin Hành Khách</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông tin hành khách</h2>
                   <div className="space-y-4">
                     {booking.hanh_khach.map((passenger, index) => (
                       <div key={passenger.id} className="border border-gray-200 rounded-xl p-6">
@@ -460,10 +474,10 @@ export const BookingDetailsPage = () => {
                 {/* Payment Information */}
                 {booking.thanh_toan && (
                   <div className="bg-white rounded-2xl p-8 shadow-lg">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông Tin Thanh Toán</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông tin thanh toán</h2>
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Chi Tiết Thanh Toán</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Chi tiết thanh toán</h3>
                         <div className="space-y-3">
                           <div className="flex justify-between">
                             <span className="text-gray-600">Mã thanh toán:</span>

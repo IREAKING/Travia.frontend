@@ -99,8 +99,8 @@ export const FAQPage = () => {
             <span className="text-4xl">❓</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-black mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
-            <span className="text-white">Câu Hỏi </span>
-            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">Thường Gặp</span>
+            <span className="text-white">Câu hỏi </span>
+            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">Thường gặp</span>
           </h1>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
             Tìm câu trả lời cho những thắc mắc phổ biến về dịch vụ của chúng tôi
@@ -118,7 +118,7 @@ export const FAQPage = () => {
           <div className="mb-12">
             <div className="text-center mb-6">
               <span className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-400 text-sm font-semibold rounded-full border border-amber-500/30 mb-4">
-                📁 Danh Mục
+                📁 Danh mục
               </span>
               <h2 className="text-2xl font-bold text-white">Chọn chủ đề</h2>
             </div>

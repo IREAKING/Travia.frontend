@@ -70,8 +70,8 @@ export const PaymentFailurePage = () => {
                 </svg>
               </div>
               <h1 className="text-5xl md:text-6xl font-black mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
-                <span className="text-white">Thanh Toán </span>
-                <span className="bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent">Thất Bại</span>
+                <span className="text-white">Thanh toán </span>
+                <span className="bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent">Thất bại</span>
               </h1>
               <p className="text-xl text-slate-400 mb-8">Rất tiếc, thanh toán không thành công. Vui lòng thử lại hoặc liên hệ hỗ trợ.</p>
               <div className="inline-block p-6 bg-red-500/10 border border-red-500/30 rounded-2xl max-w-2xl">
@@ -82,10 +82,10 @@ export const PaymentFailurePage = () => {
 
             {/* Error Details */}
             <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-white/10 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-8">Chi Tiết & Giải Pháp</h2>
+              <h2 className="text-2xl font-bold text-white mb-8">Chi tiết & giải pháp</h2>
               <div className="grid lg:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-lg font-semibold text-red-400 mb-4">Thông Tin Lỗi</h3>
+                  <h3 className="text-lg font-semibold text-red-400 mb-4">Thông tin lỗi</h3>
                   <div className="space-y-3 p-4 bg-white/5 rounded-xl">
                     <div className="flex justify-between"><span className="text-slate-400">Mã lỗi:</span><span className="text-red-400 font-bold">{errorData?.errorCode}</span></div>
                     <div className="flex justify-between"><span className="text-slate-400">Thời gian:</span><span className="text-white">{new Date().toLocaleString('vi-VN')}</span></div>
@@ -93,7 +93,7 @@ export const PaymentFailurePage = () => {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-cyan-400 mb-4">Giải Pháp Khuyến Nghị</h3>
+                  <h3 className="text-lg font-semibold text-cyan-400 mb-4">Giải pháp khuyến nghị</h3>
                   <div className="space-y-3 p-4 bg-white/5 rounded-xl">
                     {[
                       'Kiểm tra lại thông tin thẻ/tài khoản',
@@ -114,7 +114,7 @@ export const PaymentFailurePage = () => {
 
             {/* Support */}
             <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-white/10 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6 text-center">Hỗ Trợ Khách Hàng</h2>
+              <h2 className="text-2xl font-bold text-white mb-6 text-center">Hỗ trợ khách hàng</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 {[
                   { icon: '📞', title: 'Hotline 24/7', info: '1900 1234', gradient: 'from-emerald-500 to-teal-600' },
@@ -134,15 +134,15 @@ export const PaymentFailurePage = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button onClick={() => errorData?.bookingId ? navigate(`/payment/${errorData.bookingId}`) : navigate('/tours')} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-105">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                    Thử Lại Thanh Toán
+                    Thử lại thanh toán
                 </button>
               <button onClick={() => navigate('/contact')} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-xl text-white font-bold rounded-xl border border-white/20 hover:bg-white/10 transition-all hover:scale-105">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                    Liên Hệ Hỗ Trợ
+                    Liên hệ hỗ trợ
                 </button>
               <button onClick={() => navigate('/tours')} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-xl text-white font-bold rounded-xl border border-white/20 hover:bg-white/10 transition-all hover:scale-105">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                    Quay Lại Tours
+                    Quay lại tours
                 </button>
             </div>
           </div>

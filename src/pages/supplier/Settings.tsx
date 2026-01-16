@@ -169,7 +169,7 @@ export const SupplierSettingsPage = () => {
         <div className="relative z-10 p-8 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Cài Đặt</h1>
+            <h1 className="text-3xl font-bold mb-2">Cài đặt</h1>
             <p className="text-gray-300">Quản lý tài khoản và cài đặt hệ thống</p>
           </div>
           <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
@@ -208,7 +208,7 @@ export const SupplierSettingsPage = () => {
           {/* Account Settings */}
           {activeTab === 'account' && (
             <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-white mb-6">Thông Tin Tài Khoản</h3>
+              <h3 className="text-xl font-semibold text-white mb-6">Thông tin tài khoản</h3>
               
               <div className="space-y-6">
                 <div>
@@ -371,7 +371,7 @@ export const SupplierSettingsPage = () => {
           {/* Payment Settings */}
           {activeTab === 'payment' && (
             <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-white mb-6">Thông Tin Thanh Toán</h3>
+              <h3 className="text-xl font-semibold text-white mb-6">Thông tin thanh toán</h3>
               
               <div className="space-y-6">
                 <div>
@@ -430,7 +430,7 @@ export const SupplierSettingsPage = () => {
             <div className="space-y-6">
               {/* Change Password */}
               <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6">
-                <h3 className="text-xl font-semibold text-white mb-6">Đổi Mật Khẩu</h3>
+                <h3 className="text-xl font-semibold text-white mb-6">Đổi mật khẩu</h3>
                 
                 <div className="space-y-6">
                   <div>

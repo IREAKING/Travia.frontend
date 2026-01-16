@@ -41,7 +41,7 @@ export const RefundPage = () => {
                   ✅
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Tổng Quan</h2>
+                  <h2 className="text-2xl font-bold text-white mb-2">Tổng quan</h2>
                   <p className="text-slate-400">Travia cam kết đảm bảo quyền lợi khách hàng với chính sách hoàn tiền minh bạch và công bằng.</p>
                 </div>
               </div>

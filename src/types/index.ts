@@ -47,6 +47,22 @@ export interface ChangePasswordRequest {
   mat_khau_moi: string;
 }
 
+// Forgot Password types
+export interface RequestPasswordResetRequest {
+  email: string;
+}
+
+export interface VerifyOTPRequest {
+  email: string;
+  otp: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  otp: string;
+  new_password: string;
+}
+
 // Tour types
 export interface TourCategory {
   id: number;

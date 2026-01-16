@@ -9,6 +9,7 @@ import { AdvancedSearchBox } from '../../components/common/SearchBox';
 import { Testimonials } from '../../components/common/Testimonials';
 import { RecommendedTours } from '../../components/tour/RecommendedTours';
 import { LocationTours } from '../../components/tour/LocationTours';
+import { PopularDestinations } from '../../components/common/PopularDestinations';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import type { SearchToursParams } from '../../types';
 import type { GetAllTour } from '../../types/tour';
@@ -306,6 +307,16 @@ export const HomePage = () => {
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <LocationTours limit={10} />
+        </div>
+      </section>
+
+      {/* Popular Destinations */}
+      <section className="py-20 bg-[#0a0f1a] relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-cyan-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-[120px]" />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <PopularDestinations limit={8} showTitle={true} variant="grid" />
         </div>
       </section>
 

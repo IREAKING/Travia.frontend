@@ -22,9 +22,11 @@ export const tourService = {
   },
 
   // Get all tours
-  getAllTours: async (): Promise<GetAllTour[]> => {
+  getAllTours: async (limit: number = 1000, offset: number = 0): Promise<GetAllTour[]> => {
     try {
-      const response = await api.get<ApiResponse<GetAllTour[]>>('/tour/');
+      const response = await api.get<ApiResponse<GetAllTour[]>>('/tour/', {
+        params: { limit, offset },
+      });
       console.log('Tours API Response:', response.data);
       return response.data?.data || [];
     } catch (error) {

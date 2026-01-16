@@ -13,7 +13,7 @@ export const AdminSidebar = () => {
       gradient: 'from-cyan-500 to-blue-500',
     },
     {
-      name: 'Quản Lý Nhà Cung Cấp',
+      name: 'Quản lý nhà cung cấp',
       path: '/admin/suppliers',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +23,7 @@ export const AdminSidebar = () => {
       gradient: 'from-violet-500 to-purple-500',
     },
     {
-      name: 'Quản Lý Người Dùng',
+      name: 'Quản lý người dùng',
       path: '/admin/users',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +33,7 @@ export const AdminSidebar = () => {
       gradient: 'from-emerald-500 to-teal-500',
     },
     {
-      name: 'Quản Lý Tours',
+      name: 'Quản lý tours',
       path: '/admin/tours',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,7 +43,7 @@ export const AdminSidebar = () => {
       gradient: 'from-orange-500 to-amber-500',
     },
     {
-      name: 'Đặt Chỗ',
+      name: 'Đặt chỗ',
       path: '/admin/bookings',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,6 +61,26 @@ export const AdminSidebar = () => {
         </svg>
       ),
       gradient: 'from-green-500 to-emerald-500',
+    },
+    {
+      name: 'Hoàn Tiền',
+      path: '/admin/refunds',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+      ),
+      gradient: 'from-rose-500 to-pink-500',
+    },
+    {
+      name: 'Blog',
+      path: '/admin/blog',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      ),
+      gradient: 'from-indigo-500 to-purple-500',
     },
     {
       name: 'Liên Hệ',

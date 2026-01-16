@@ -143,5 +143,60 @@ export const bookingService = {
       so_cho_trong: soChoTrong,
     };
   },
+
+  /**
+   * Calculate refund amount - Tính số tiền hoàn lại (không hủy booking)
+   * GET /booking/:id/calculate-refund
+   * 
+   * @param id - ID của booking
+   * @returns Promise<CalculateRefundResponse>
+   */
+  calculateRefundAmount: async (id: number): Promise<CalculateRefundResponse> => {
+    const response = await api.get<{ message: string; data: CalculateRefundData }>(`/booking/${id}/calculate-refund`);
+    return {
+      message: response.data.message,
+      data: response.data.data,
+    };
+  },
+
+  /**
+   * Cancel booking - Hủy đặt chỗ và tính số tiền hoàn lại
+   * PUT /booking/:id/cancel
+   * 
+   * @param id - ID của booking
+   * @returns Promise<CancelBookingResponse>
+   */
+  cancelBooking: async (id: number): Promise<CancelBookingResponse> => {
+    const response = await api.put<{ message: string; data: CancelBookingData }>(`/booking/${id}/cancel`);
+    return {
+      message: response.data.message,
+      data: response.data.data,
+    };
+  },
 };
+
+export interface CalculateRefundData {
+  tong_tien: number;
+  so_tien_hoan: number;
+  phan_tram_hoan: number;
+  so_ngay_truoc_khoi_hanh: number;
+  ly_do: string;
+}
+
+export interface CalculateRefundResponse {
+  message: string;
+  data: CalculateRefundData;
+}
+
+export interface CancelBookingData {
+  so_tien_hoan: number;
+  phan_tram_hoan: number;
+  so_ngay_truoc_khoi_hanh: number;
+  ly_do: string;
+}
+
+export interface CancelBookingResponse {
+  message: string;
+  data: CancelBookingData;
+}
 

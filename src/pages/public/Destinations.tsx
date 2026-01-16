@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { MainLayout } from '../../components/layout/MainLayout';
 import { SearchBox } from '../../components/common/SearchBox';
 import { LoadingSpinner } from '../../components/common/Loading';
+import { destinationService } from '../../services/destinationService';
 
 interface Destination {
   id: number;
@@ -22,22 +23,33 @@ const regions = [
 
 export const DestinationsPage = () => {
   const [destinations, setDestinations] = useState<Destination[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Load popular destinations
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setDestinations([
-        { id: 1, ten: 'Hạ Long', quoc_gia: 'Việt Nam', khu_vuc: 'Miền Bắc', mo_ta: 'Vịnh Hạ Long - Di sản thiên nhiên thế giới', anh: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800', tour_count: 15 },
-        { id: 2, ten: 'Đà Nẵng', quoc_gia: 'Việt Nam', khu_vuc: 'Miền Trung', mo_ta: 'Thành phố đáng sống nhất Việt Nam', anh: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800', tour_count: 20 },
-        { id: 3, ten: 'Phú Quốc', quoc_gia: 'Việt Nam', khu_vuc: 'Miền Nam', mo_ta: 'Đảo ngọc thiên đường biển xanh', anh: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800', tour_count: 12 },
-        { id: 4, ten: 'Sapa', quoc_gia: 'Việt Nam', khu_vuc: 'Miền Bắc', mo_ta: 'Thị trấn sương mù với ruộng bậc thang', anh: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800', tour_count: 18 },
-        { id: 5, ten: 'Nha Trang', quoc_gia: 'Việt Nam', khu_vuc: 'Miền Trung', mo_ta: 'Thành phố biển xinh đẹp', anh: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800', tour_count: 22 },
-        { id: 6, ten: 'Hội An', quoc_gia: 'Việt Nam', khu_vuc: 'Miền Trung', mo_ta: 'Phố cổ lãng mạn với đèn lồng', anh: 'https://images.unsplash.com/photo-1583417267826-aebc4d1542e1?w=800', tour_count: 16 },
-      ]);
-      setLoading(false);
-    }, 500);
+    const loadPopularDestinations = async () => {
+      try {
+        const data = await destinationService.getTopPopularDestinations(12);
+        // Convert to Destination format for display
+        const converted = data.map(d => ({
+          id: d.id,
+          ten: d.ten,
+          quoc_gia: d.quoc_gia || 'Việt Nam',
+          khu_vuc: d.khu_vuc || undefined,
+          mo_ta: d.mo_ta || undefined,
+          anh: d.anh || undefined,
+          tour_count: d.so_luong_tour
+        }));
+        setDestinations(converted);
+      } catch (error) {
+        console.error('Error loading popular destinations:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPopularDestinations();
   }, []);
 
   const filteredDestinations = searchQuery
@@ -66,11 +78,11 @@ export const DestinationsPage = () => {
         
         <div className="relative container mx-auto px-4 text-center py-20">
           <span className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 text-cyan-400 text-sm font-semibold rounded-full border border-cyan-500/30 mb-6">
-            🌍 Khám Phá Thế Giới
+            🌍 Khám phá thế giới
           </span>
           <h1 className="text-5xl md:text-7xl font-black mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
-            <span className="text-white">Khám Phá </span>
-            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Điểm Đến</span>
+            <span className="text-white">Khám phá </span>
+            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Điểm đến</span>
           </h1>
           <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
             Hàng trăm điểm đến tuyệt vời đang chờ bạn khám phá
@@ -92,10 +104,10 @@ export const DestinationsPage = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-400 text-sm font-semibold rounded-full border border-purple-500/30 mb-4">
-              🗺️ Vùng Miền
+              🗺️ Vùng miền
             </span>
             <h2 className="text-4xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Khám Phá <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Theo Vùng</span>
+              Khám phá <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Theo vùng</span>
             </h2>
           </div>
           
@@ -130,10 +142,10 @@ export const DestinationsPage = () => {
           <div className="flex items-center justify-between mb-10">
             <div>
               <span className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-400 text-sm font-semibold rounded-full border border-amber-500/30 mb-4">
-                📍 Điểm Đến
+                📍 Điểm đến
               </span>
               <h2 className="text-4xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
-                Tất Cả <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Điểm Đến</span>
+                Tất cả <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Điểm đến</span>
               </h2>
             </div>
             <div className="px-4 py-2 bg-white/5 rounded-xl border border-white/10">
@@ -158,7 +170,7 @@ export const DestinationsPage = () => {
               {filteredDestinations.map((destination, i) => (
                 <Link
                   key={destination.id}
-                  to={`/tours?destination=${destination.id}`}
+                  to={`/tours?diem_den_id=${destination.id}`}
                   className="group relative"
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
@@ -173,7 +185,7 @@ export const DestinationsPage = () => {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80" />
                         <div className="absolute top-4 right-4 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg shadow-amber-500/30">
-                          {destination.tour_count} tours
+                          {destination.tour_count || 0} tours
                         </div>
                       </div>
                     )}
@@ -204,7 +216,7 @@ export const DestinationsPage = () => {
         
         <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-5xl font-black text-white mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Không Tìm Thấy <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Điểm Đến?</span>
+            Không tìm thấy <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Điểm đến?</span>
           </h2>
           <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
             Liên hệ với chúng tôi để được tư vấn điểm đến phù hợp
@@ -213,7 +225,7 @@ export const DestinationsPage = () => {
             to="/contact"
             className="inline-flex items-center justify-center gap-2 px-10 py-5 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold rounded-2xl shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all hover:scale-105"
           >
-            Liên Hệ Ngay
+            Liên hệ ngay
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

@@ -84,6 +84,7 @@ export const ToursPage = () => {
   const getSearchParamsFromURL = useCallback((): SearchToursParams => {
     return {
       query: searchParams.get('query') || undefined,
+      diem_den_id: searchParams.get('diem_den_id') ? parseInt(searchParams.get('diem_den_id')!) : undefined,
       diem_den_ten: searchParams.get('diem_den_ten') || undefined,
       so_ngay_min: searchParams.get('so_ngay_min') ? parseInt(searchParams.get('so_ngay_min')!) : undefined,
       so_ngay_max: searchParams.get('so_ngay_max') ? parseInt(searchParams.get('so_ngay_max')!) : undefined,
@@ -99,7 +100,7 @@ export const ToursPage = () => {
         setCategories(categoriesData || []);
 
         const urlParams = getSearchParamsFromURL();
-        const hasSearchParams = urlParams.query || urlParams.diem_den_ten || urlParams.so_ngay_min || urlParams.so_ngay_max;
+        const hasSearchParams = urlParams.query || urlParams.diem_den_id || urlParams.diem_den_ten || urlParams.so_ngay_min || urlParams.so_ngay_max;
 
         if (hasSearchParams) {
           // Search with URL params

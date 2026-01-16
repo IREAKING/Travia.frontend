@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../components/layout/MainLayout';
 import { Loading } from '../../components/common/Loading';
+import { Modal } from '../../components/common/Modal';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../hooks/useToast';
 import { formatCurrency, formatDate } from '../../utils/formatters';
@@ -66,6 +67,8 @@ export const BookingPage = () => {
   const [paymentMethod, setPaymentMethod] = useState<string>('stripe');
   const [seatHeld, setSeatHeld] = useState(false);
   const [expandedPassenger, setExpandedPassenger] = useState<number>(0);
+  const [showInsufficientSeatsModal, setShowInsufficientSeatsModal] = useState(false);
+  const [insufficientSeatsMessage, setInsufficientSeatsMessage] = useState('');
 
   // Get departure ID from query params
   const departureId = searchParams.get('departure');
@@ -190,7 +193,8 @@ export const BookingPage = () => {
     const totalPeople = soNguoiLon + soTreEm;
 
     if (totalPeople > availableSeats) {
-      showToast(`Chỉ còn ${availableSeats} chỗ trống`, 'error');
+      setInsufficientSeatsMessage(`Không đủ chỗ trống. Hiện chỉ còn ${availableSeats} chỗ.`);
+      setShowInsufficientSeatsModal(true);
       return;
     }
 
@@ -217,6 +221,17 @@ export const BookingPage = () => {
         showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại', 'warning');
         const returnUrl = `/booking/new/${id}${departureId ? `?departure=${departureId}` : ''}`;
         navigate('/login', { state: { from: returnUrl } });
+      } else if (error?.response?.status === 409 || error?.response?.data?.so_cho_trong !== undefined) {
+        const soChoTrong = error?.response?.data?.so_cho_trong;
+        const soChoYeuCau = error?.response?.data?.so_cho_yeu_cau;
+        if (soChoTrong !== undefined && soChoYeuCau !== undefined) {
+          setInsufficientSeatsMessage(
+            `Không đủ chỗ trống. Yêu cầu ${soChoYeuCau} chỗ nhưng chỉ còn ${soChoTrong} chỗ.`
+          );
+        } else {
+          setInsufficientSeatsMessage(error?.response?.data?.error || 'Không đủ chỗ trống cho số lượng đã chọn.');
+        }
+        setShowInsufficientSeatsModal(true);
       } else {
         showToast(error.response?.data?.error || 'Không thể giữ chỗ', 'error');
       }
@@ -1073,6 +1088,28 @@ export const BookingPage = () => {
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={showInsufficientSeatsModal}
+        onClose={() => setShowInsufficientSeatsModal(false)}
+        showCloseButton={false}
+      >
+        <div className="bg-slate-900 border border-white/10 rounded-2xl p-8 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-rose-500/20 flex items-center justify-center">
+            <svg className="w-8 h-8 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-white mb-3">Không đủ chỗ trống</h3>
+          <p className="text-slate-300 mb-6">{insufficientSeatsMessage}</p>
+          <button
+            onClick={() => setShowInsufficientSeatsModal(false)}
+            className="px-6 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-400 transition-colors"
+          >
+            Đã hiểu
+          </button>
+        </div>
+      </Modal>
     </MainLayout>
   );
 };

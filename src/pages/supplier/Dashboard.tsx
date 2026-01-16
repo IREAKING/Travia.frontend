@@ -385,7 +385,7 @@ export const SupplierDashboard = () => {
               </svg>
                 </div>
               <div>
-                  <p className="font-semibold text-white group-hover:text-pink-300 transition-colors">Thống Kê</p>
+                  <p className="font-semibold text-white group-hover:text-pink-300 transition-colors">Thống kê</p>
                 <p className="text-sm text-pink-300/80">Xem báo cáo chi tiết</p>
                 </div>
               </div>

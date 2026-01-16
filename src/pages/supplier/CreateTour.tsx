@@ -194,7 +194,7 @@ const ItineraryTabs = ({
               <svg className="w-4 h-4 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
-              Tiêu Đề Ngày *
+              Tiêu đề ngày *
             </label>
             <input
               type="text"
@@ -261,7 +261,7 @@ const ItineraryTabs = ({
               <svg className="w-4 h-4 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
               </svg>
-              Mô Tả Ngày
+              Mô tả ngày
             </span>
             <span className="text-xs text-gray-400">({currentItinerary.mo_ta?.length || 0} ký tự)</span>
           </label>
@@ -281,7 +281,7 @@ const ItineraryTabs = ({
               <svg className="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              Thông Tin Lưu Trú
+              Thông tin lưu trú
             </span>
             <span className="text-xs text-gray-400">({currentItinerary.thong_tin_luu_tru?.length || 0} ký tự)</span>
           </label>
@@ -320,7 +320,7 @@ const ItineraryTabs = ({
               <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Thêm Hoạt Động
+              Thêm hoạt động
             </button>
           </div>
 
@@ -338,7 +338,7 @@ const ItineraryTabs = ({
                 onClick={() => onAddActivity(activeTab)}
                 className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-lg hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 text-sm font-medium shadow-lg shadow-cyan-500/25"
               >
-                Thêm Hoạt Động Đầu Tiên
+                Thêm hoạt động đầu tiên
               </button>
             </div>
           ) : (
@@ -351,7 +351,7 @@ const ItineraryTabs = ({
                         {activityIndex + 1}
                       </div>
                       <h6 className="text-lg font-semibold text-white">
-                        Hoạt Động {activityIndex + 1}
+                        Hoạt động {activityIndex + 1}
                       </h6>
                     </div>
                     <button
@@ -369,7 +369,7 @@ const ItineraryTabs = ({
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-300 mb-1">
-                        Tên Hoạt Động *
+                        Tên hoạt động *
                       </label>
                       <input
                         type="text"
@@ -425,7 +425,7 @@ const ItineraryTabs = ({
                         <svg className="w-3 h-3 mr-1 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
                         </svg>
-                        Mô Tả Hoạt Động
+                        Mô tả hoạt động
                       </span>
                       <span className="text-xs text-gray-400">({activity.mo_ta?.length || 0} ký tự)</span>
                     </label>
@@ -598,7 +598,7 @@ export const CreateTourPage = () => {
           for (let j = 0; j < itinerary.hoat_dong_lich_trinh_tours.length; j++) {
             const activity = itinerary.hoat_dong_lich_trinh_tours[j];
             if (!activity.ten.trim()) {
-              return `Vui lòng nhập tên cho Hoạt động ${j + 1} trong Ngày ${itinerary.ngay_thu}`;
+              return `Vui lòng nhập tên cho hoạt động ${j + 1} trong ngày ${itinerary.ngay_thu}`;
             }
           }
         }
@@ -1081,7 +1081,7 @@ export const CreateTourPage = () => {
 
         <form id="create-tour-form" onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
-          <CollapsibleSection title="📋 Thông Tin Cơ Bản" defaultOpen={true}>
+          <CollapsibleSection title="📋 Thông tin cơ bản" defaultOpen={true}>
             <div className="mb-4 p-3 bg-cyan-500/10 border-l-4 border-cyan-500 rounded-r-lg">
               <p className="text-sm text-cyan-300">
                 <span className="font-semibold">💡 Hướng dẫn:</span> Điền đầy đủ thông tin cơ bản về tour. Các trường có dấu (*) là bắt buộc.
@@ -1090,7 +1090,7 @@ export const CreateTourPage = () => {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Tiêu Đề Tour *
+                  Tiêu đề tour *
                 </label>
                 <input
                   type="text"
@@ -1104,7 +1104,7 @@ export const CreateTourPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Danh Mục
+                  Danh mục
                 </label>
                 <select
                   value={formData.danh_muc_id || ''}
@@ -1120,7 +1120,7 @@ export const CreateTourPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Số Ngày *
+                  Số ngày *
                 </label>
                 <input
                   type="number"
@@ -1134,7 +1134,7 @@ export const CreateTourPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Số Đêm *
+                  Số đêm *
                 </label>
                 <input
                   type="number"
@@ -1148,7 +1148,7 @@ export const CreateTourPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Giá Người Lớn (VND) *
+                  Giá người lớn (VND) *
                 </label>
                 <input
                   type="number"
@@ -1162,7 +1162,7 @@ export const CreateTourPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Giá Trẻ Em (VND) *
+                  Giá trẻ em (VND) *
                 </label>
                 <input
                   type="number"
@@ -1176,7 +1176,7 @@ export const CreateTourPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Đơn Vị Tiền Tệ
+                  Đơn vị tiền tệ
                 </label>
                 <select
                   value={formData.don_vi_tien_te}
@@ -1238,7 +1238,7 @@ export const CreateTourPage = () => {
 
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Mô Tả Tour
+                Mô tả tour
                 <span className="text-xs text-gray-400 ml-2">({formData.mo_ta?.length || 0} ký tự)</span>
               </label>
               <textarea
@@ -1268,7 +1268,7 @@ export const CreateTourPage = () => {
           </CollapsibleSection>
 
           {/* Images */}
-          <CollapsibleSection title={`🖼️ Hình Ảnh Tour (${formData.hinh_anh_tours.length})`}>
+          <CollapsibleSection title={`🖼️ Hình ảnh tour (${formData.hinh_anh_tours.length})`}>
             <div className="mb-4 p-3 bg-cyan-500/10 border-l-4 border-cyan-500 rounded-r-lg">
               <p className="text-sm text-cyan-300">
                 <span className="font-semibold">💡 Hướng dẫn:</span> Upload ít nhất 1 ảnh cho tour. Ảnh đẹp sẽ thu hút khách hàng hơn!
@@ -1376,7 +1376,7 @@ export const CreateTourPage = () => {
                     <div className="grid md:grid-cols-3 gap-3">
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-300 mb-1">
-                          Link Hình Ảnh *
+                          Link hình ảnh *
                         </label>
                         <input
                           type="url"
@@ -1390,7 +1390,7 @@ export const CreateTourPage = () => {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">
-                          Mô Tả Alt
+                          Mô tả alt
                         </label>
                         <input
                           type="text"
@@ -1430,7 +1430,7 @@ export const CreateTourPage = () => {
           </CollapsibleSection>
 
           {/* Destinations */}
-          <CollapsibleSection title={`📍 Điểm Đến (${formData.dia_diem_tours.length})`}>
+          <CollapsibleSection title={`📍 Điểm đến (${formData.dia_diem_tours.length})`}>
             <div className="mb-4 p-3 bg-purple-500/10 border-l-4 border-purple-500 rounded-r-lg">
               <p className="text-sm text-purple-300">
                 <span className="font-semibold">💡 Hướng dẫn:</span> Thêm các điểm đến chính trong tour theo thứ tự tham quan.
@@ -1442,7 +1442,7 @@ export const CreateTourPage = () => {
                 onClick={addDestination}
                 className="px-4 py-2 bg-white/5 border border-white/20 text-gray-300 rounded-lg hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
               >
-                + Thêm Điểm Đến
+                + Thêm điểm đến
               </button>
             </div>
 
@@ -1461,7 +1461,7 @@ export const CreateTourPage = () => {
                     <div className="grid md:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">
-                          Điểm Đến *
+                          Điểm đến *
                         </label>
                         <CascadingDestinationSelector
                           value={destination.diem_den_id}
@@ -1473,7 +1473,7 @@ export const CreateTourPage = () => {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">
-                          Thứ Tự Tham Quan
+                          Thứ tự tham quan
                         </label>
                         <input
                           type="number"
@@ -1501,7 +1501,7 @@ export const CreateTourPage = () => {
           </CollapsibleSection>
 
           {/* Itineraries */}
-          <CollapsibleSection title={`📅 Lịch Trình (${formData.lich_trinh_tours.length} ngày)`}>
+          <CollapsibleSection title={`📅 Lịch trình (${formData.lich_trinh_tours.length} ngày)`}>
             <div className="mb-4 p-3 bg-orange-500/10 border-l-4 border-orange-500 rounded-r-lg">
               <p className="text-sm text-orange-300">
                 <span className="font-semibold">💡 Hướng dẫn:</span> Tạo lịch trình chi tiết cho từng ngày. Mỗi ngày có thể có nhiều hoạt động khác nhau.
@@ -1531,7 +1531,7 @@ export const CreateTourPage = () => {
           </CollapsibleSection>
 
           {/* Departures (Lịch Khởi Hành) */}
-          <CollapsibleSection title={`🚌 Lịch Khởi Hành (${formData.lich_khoi_hanh_tours?.length || 0} chuyến)`} defaultOpen={true}>
+          <CollapsibleSection title={`🚌 Lịch khởi hành (${formData.lich_khoi_hanh_tours?.length || 0} chuyến)`} defaultOpen={true}>
             <div className="mb-4 p-3 bg-purple-500/10 border-l-4 border-purple-500 rounded-r-lg">
               <p className="text-sm text-purple-300">
                 <span className="font-semibold">💡 Hướng dẫn:</span> Thêm các ngày khởi hành cụ thể cho tour. Mỗi chuyến có sức chứa riêng.
@@ -1547,7 +1547,7 @@ export const CreateTourPage = () => {
                 <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Thêm Chuyến Khởi Hành
+                Thêm chuyến khởi hành
               </button>
             </div>
 
@@ -1565,7 +1565,7 @@ export const CreateTourPage = () => {
                   onClick={addDeparture}
                   className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-400 hover:to-pink-400 transition-all duration-300 text-sm font-medium shadow-lg shadow-purple-500/25"
                 >
-                  Thêm Lịch Khởi Hành Đầu Tiên
+                  Thêm lịch khởi hành đầu tiên
                 </button>
               </div>
             ) : (
@@ -1598,7 +1598,7 @@ export const CreateTourPage = () => {
                           <svg className="w-4 h-4 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
-                          Ngày Khởi Hành
+                          Ngày khởi hành
                         </label>
                         <input
                           type="date"

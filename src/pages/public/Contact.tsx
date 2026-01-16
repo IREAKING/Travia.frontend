@@ -113,7 +113,7 @@ export const ContactPage = () => {
             <div className="space-y-8">
             <div>
                 <span className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 text-cyan-400 text-sm font-semibold rounded-full border border-cyan-500/30 mb-4">
-                  📞 Thông Tin Liên Hệ
+                  📞 Thông tin liên hệ
                 </span>
                 <h2 className="text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
                   Kết Nối <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Với Chúng Tôi</span>

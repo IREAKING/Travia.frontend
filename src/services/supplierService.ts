@@ -25,9 +25,14 @@ import type {
 } from '../types';
 
 export const supplierService = {
-  // Đăng ký đối tác (công khai, không cần auth)
-  registerPartner: async (data: CreateSupplierRequest): Promise<CreateSupplierResponse> => {
-    const response = await api.post<ApiResponse<CreateSupplierResponse>>('/supplier/register', data);
+  // Đăng ký đối tác (công khai, không cần auth) - với upload file
+  registerPartner: async (formData: FormData): Promise<CreateSupplierResponse> => {
+    const response = await api.post<ApiResponse<CreateSupplierResponse>>('/supplier/register', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 60000, // 60 seconds for file uploads
+    });
     return response.data.data;
   },
 
@@ -346,5 +351,102 @@ export const supplierService = {
   getOptionTours: async (): Promise<SupplierOptionTour[]> => {
     const response = await api.get<ApiResponse<SupplierOptionTour[]>>('/supplier/dashboard/options-tour');
     return Array.isArray(response.data.data) ? response.data.data : [];
-  }
+  },
+
+  // ========== Refund Management ==========
+  
+  // Get refunds for supplier's tours
+  getRefunds: async (params?: {
+    start_date?: string;
+    end_date?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: any[]; page: number; limit: number }> => {
+    const response = await api.get<{
+      message: string;
+      data: any[];
+      page: number;
+      limit: number;
+    }>('/supplier/refunds', {
+      params
+    });
+    // Backend trả về { message, data: refundList, page, limit }
+    return {
+      data: response.data.data || [],
+      page: response.data.page || 1,
+      limit: response.data.limit || 10
+    };
+  },
+
+  // Get refund statistics for supplier
+  getRefundStats: async (params?: {
+    start_date?: string;
+    end_date?: string;
+  }): Promise<any> => {
+    const response = await api.get<ApiResponse<any>>('/supplier/refunds/stats', {
+      params
+    });
+    return response.data.data;
+  },
+
+  // ========== Revenue Management ==========
+  
+  // Get revenue statistics
+  getRevenueStatistics: async (params?: {
+    start_date?: string;
+    end_date?: string;
+  }): Promise<{
+    tong_doanh_thu: number;
+    doanh_thu_thang_nay: number;
+    doanh_thu_thang_truoc: number;
+    ty_le_tang_truong: number;
+    so_dat_cho: number;
+    doanh_thu_trung_binh_don: number;
+  }> => {
+    const response = await api.get<ApiResponse<{
+      tong_doanh_thu: number;
+      doanh_thu_thang_nay: number;
+      doanh_thu_thang_truoc: number;
+      ty_le_tang_truong: number;
+      so_dat_cho: number;
+      doanh_thu_trung_binh_don: number;
+    }>>('/supplier/revenue/statistics', {
+      params
+    });
+    return response.data.data;
+  },
+
+  // Get transactions
+  getTransactions: async (params?: {
+    start_date?: string;
+    end_date?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{
+    id: number;
+    ma_dat_cho: string;
+    tour_tieu_de: string;
+    nguoi_dung_ten: string;
+    so_tien: number;
+    phi_dich_vu: number;
+    so_tien_thuc_nhan: number;
+    ngay_thanh_toan: string;
+    trang_thai: string | { trang_thai_dat_cho?: string; valid?: boolean };
+  }[]> => {
+    const response = await api.get<ApiResponse<{
+      id: number;
+      ma_dat_cho: string;
+      tour_tieu_de: string;
+      nguoi_dung_ten: string;
+      so_tien: number;
+      phi_dich_vu: number;
+      so_tien_thuc_nhan: number;
+      ngay_thanh_toan: string;
+      trang_thai: string | { trang_thai_dat_cho?: string; valid?: boolean };
+    }[]>>('/supplier/revenue/transactions', {
+      params
+    });
+    return response.data.data || [];
+  },
 };

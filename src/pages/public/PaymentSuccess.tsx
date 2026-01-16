@@ -65,8 +65,8 @@ export const PaymentSuccessPage = () => {
                 </svg>
               </div>
               <h1 className="text-5xl md:text-6xl font-black mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
-                <span className="text-white">Thanh Toán </span>
-                <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Thành Công!</span>
+                <span className="text-white">Thanh toán </span>
+                <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Thành công!</span>
               </h1>
               <p className="text-xl text-slate-400 mb-8">Cảm ơn bạn đã đặt tour. Email xác nhận đang được gửi đến bạn.</p>
               <div className="inline-flex items-center gap-3 px-6 py-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl">
@@ -79,10 +79,10 @@ export const PaymentSuccessPage = () => {
             <div className="relative group mb-8">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-3xl opacity-30 blur-xl" />
               <div className="relative bg-slate-900/90 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-                <h2 className="text-2xl font-bold text-white mb-8">Chi Tiết Đặt Tour</h2>
+                <h2 className="text-2xl font-bold text-white mb-8">Chi tiết đặt tour</h2>
                 <div className="grid lg:grid-cols-2 gap-8">
                   <div>
-                    <h3 className="text-lg font-semibold text-emerald-400 mb-4">Thông Tin Tour</h3>
+                    <h3 className="text-lg font-semibold text-emerald-400 mb-4">Thông tin tour</h3>
                     {bookingData?.tour ? (
                       <div className="flex items-start gap-4 p-4 bg-white/5 rounded-xl">
                         <img src={bookingData.tour.anh || '/placeholder.jpg'} alt={bookingData.tour.tieu_de} className="w-20 h-20 object-cover rounded-xl" />
@@ -97,7 +97,7 @@ export const PaymentSuccessPage = () => {
                     )}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-emerald-400 mb-4">Thông Tin Đặt</h3>
+                    <h3 className="text-lg font-semibold text-emerald-400 mb-4">Thông tin đặt</h3>
                     <div className="space-y-3 p-4 bg-white/5 rounded-xl">
                       <div className="flex justify-between"><span className="text-slate-400">Mã đặt tour:</span><span className="text-white font-bold">#{bookingData?.id || 'TRV-001'}</span></div>
                       <div className="flex justify-between"><span className="text-slate-400">Ngày khởi hành:</span><span className="text-white">{bookingData?.ngay_khoi_hanh ? new Date(bookingData.ngay_khoi_hanh).toLocaleDateString('vi-VN') : 'N/A'}</span></div>
@@ -115,7 +115,7 @@ export const PaymentSuccessPage = () => {
 
             {/* Next Steps */}
             <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-white/10 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-8 text-center">Bước Tiếp Theo</h2>
+              <h2 className="text-2xl font-bold text-white mb-8 text-center">Bước tiếp theo</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 {[
                   { icon: '📧', title: 'Kiểm tra Email', desc: 'Email xác nhận với chi tiết đầy đủ', gradient: 'from-blue-500 to-indigo-600' },
@@ -135,15 +135,15 @@ export const PaymentSuccessPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button onClick={() => console.log('Tải vé')} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-105">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                Tải Vé Điện Tử
+                Tải vé điện tử
               </button>
               <button onClick={() => navigate('/my-bookings')} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-xl text-white font-bold rounded-xl border border-white/20 hover:bg-white/10 transition-all hover:scale-105">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                Xem Đơn Đặt
+                Xem đơn đặt
               </button>
               <button onClick={() => navigate('/tours')} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-xl text-white font-bold rounded-xl border border-white/20 hover:bg-white/10 transition-all hover:scale-105">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                Đặt Tour Khác
+                Đặt tour khác
               </button>
             </div>
           </div>

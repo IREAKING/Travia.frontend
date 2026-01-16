@@ -150,7 +150,7 @@ export const NotificationsPage = () => {
                 </div>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white mb-1">Thông Báo</h1>
+                <h1 className="text-3xl font-bold text-white mb-1">Thông báo</h1>
                 <p className="text-slate-400">
                   {unreadCount > 0 ? `${unreadCount} thông báo chưa đọc` : 'Tất cả đã đọc'}
                 </p>

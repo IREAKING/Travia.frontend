@@ -7,6 +7,7 @@ import { HomePage } from './pages/public/Home';
 import { ToursPage } from './pages/public/Tours';
 import { TourDetailPage } from './pages/public/TourDetail';
 import { DestinationsPage } from './pages/public/Destinations';
+import { DestinationDetailPage } from './pages/public/DestinationDetail';
 import { CategoriesPage } from './pages/public/Categories';
 import { BlogPage } from './pages/public/Blog';
 import { AboutPage } from './pages/public/About';
@@ -30,6 +31,7 @@ import { AdminLoginPage } from './pages/auth/AdminLogin';
 import { SupplierLoginPage } from './pages/auth/SupplierLogin';
 import { RegisterPage } from './pages/auth/Register';
 import { RegisterPartnerPage } from './pages/auth/RegisterPartner';
+import { ForgotPasswordPage } from './pages/auth/ForgotPassword';
 
 // Dashboard Pages
 import { UserDashboard } from './pages/user/Dashboard';
@@ -43,6 +45,7 @@ import { EditTourPage } from './pages/supplier/EditTour';
 import { SupplierBookingsPage } from './pages/supplier/Bookings';
 import { SupplierReviewsPage } from './pages/supplier/Reviews';
 import { SupplierRevenuePage } from './pages/supplier/Revenue';
+import { SupplierRefundManagementPage } from './pages/supplier/RefundManagement';
 import { SupplierProfilePage } from './pages/supplier/Profile';
 import { SupplierSettingsPage } from './pages/supplier/Settings';
 
@@ -53,7 +56,9 @@ import { AnalyticsPage as AdminAnalyticsPage } from './pages/admin/Analytics';
 import { TourManagementPage } from './pages/admin/TourManagement';
 import { BookingManagementPage } from './pages/admin/BookingManagement';
 import { PaymentManagementPage } from './pages/admin/PaymentManagement';
+import { RefundManagementPage } from './pages/admin/RefundManagement';
 import { ContactManagementPage } from './pages/admin/ContactManagement';
+import { BlogManagementPage } from './pages/admin/BlogManagement';
 import { AdminSettingsPage } from './pages/admin/Settings';
 
 // User Pages
@@ -102,6 +107,7 @@ function App() {
           <Route path="/tours" element={<ToursPage />} />
           <Route path="/tours/:id" element={<TourDetailPage />} />
           <Route path="/destinations" element={<DestinationsPage />} />
+          <Route path="/destination/:id" element={<DestinationDetailPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/about" element={<AboutPage />} />
@@ -122,6 +128,7 @@ function App() {
             {/* Auth Routes */}
             <Route path="/login" element={<UserLoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/supplier/login" element={<SupplierLoginPage />} />
             <Route path="/supplier/register" element={<RegisterPartnerPage />} />
@@ -258,6 +265,22 @@ function App() {
             }
           />
           <Route
+            path="/admin/refunds"
+            element={
+              <ProtectedRoute allowedRoles={['quan_tri']}>
+                <RefundManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/blog"
+            element={
+              <ProtectedRoute allowedRoles={['quan_tri']}>
+                <BlogManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/contacts"
             element={
               <ProtectedRoute allowedRoles={['quan_tri']}>
@@ -352,6 +375,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['nha_cung_cap']}>
                 <SupplierRevenuePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supplier/refunds"
+            element={
+              <ProtectedRoute allowedRoles={['nha_cung_cap']}>
+                <SupplierRefundManagementPage />
               </ProtectedRoute>
             }
           />

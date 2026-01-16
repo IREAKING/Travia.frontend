@@ -531,7 +531,7 @@ export const TourDetailPage = () => {
                       disabled={tour.trang_thai !== 'cong_bo' || tour.lich_khoi_hanh.length === 0}
                       className="w-full py-4 px-6 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                     >
-                      {!isAuthenticated ? 'Đăng Nhập Để Đặt Tour' : tour.trang_thai !== 'cong_bo' ? 'Tour Tạm Ngưng' : tour.lich_khoi_hanh.length === 0 ? 'Chưa Có Lịch Khởi Hành' : '🚀 Đặt Tour Ngay'}
+                      {!isAuthenticated ? 'Đăng nhập để đặt tour' : tour.trang_thai !== 'cong_bo' ? 'Tour tạm ngưng' : tour.lich_khoi_hanh.length === 0 ? 'Chưa có lịch khởi hành' : '🚀 Đặt tour ngay'}
                     </button>
 
                     {/* Support */}

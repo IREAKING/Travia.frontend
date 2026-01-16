@@ -234,6 +234,16 @@ export const adminService = {
     return response.data.data;
   },
 
+  // Get signed PDF URL for business license
+  getSignedPDFUrl: async (fileName: string): Promise<string> => {
+    // Backend returns { "url": "..." } directly, not wrapped in ApiResponse
+    const response = await api.get<{ url: string }>(`/storage/get-signed-pdf/${encodeURIComponent(fileName)}`);
+    if (!response.data.url) {
+      throw new Error('Không nhận được URL từ server');
+    }
+    return response.data.url;
+  },
+
   // ========== Customer Management ==========
   
   // Get customer growth monthly report
@@ -252,5 +262,94 @@ export const adminService = {
       params: { limit }
     });
     return Array.isArray(response.data.data) ? response.data.data : [];
+  },
+
+  // ========== Refund Management ==========
+  
+  // Get all refunds (with filters)
+  getAllRefunds: async (params?: {
+    start_date?: string;
+    end_date?: string;
+    supplier_id?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: any[]; page: number; limit: number }> => {
+    const response = await api.get<{
+      message: string;
+      data: any[];
+      page: number;
+      limit: number;
+    }>('/admin/refunds', {
+      params
+    });
+    // Backend trả về { message, data: refundList, page, limit }
+    return {
+      data: response.data.data || [],
+      page: response.data.page || 1,
+      limit: response.data.limit || 10
+    };
+  },
+
+  // Get refund statistics
+  getRefundStats: async (params?: {
+    start_date?: string;
+    end_date?: string;
+  }): Promise<any> => {
+    const response = await api.get<ApiResponse<any>>('/admin/refunds/stats', {
+      params
+    });
+    return response.data.data;
+  },
+
+  // ========== Booking Statistics ==========
+  
+  // Get booking statistics with filters
+  getBookingStatistics: async (params?: {
+    start_date?: string;
+    end_date?: string;
+    supplier_id?: string;
+    trang_thai?: string;
+  }): Promise<any> => {
+    const response = await api.get<ApiResponse<any>>('/admin/bookings/statistics', {
+      params
+    });
+    return response.data.data;
+  },
+
+  // Get all bookings for admin with filters and pagination
+  getAllBookings: async (params?: {
+    start_date?: string;
+    end_date?: string;
+    supplier_id?: string;
+    trang_thai?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    data: any[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+  }> => {
+    const response = await api.get<{
+      message: string;
+      data: any[];
+      total: number;
+      page: number;
+      limit: number;
+      total_pages: number;
+    }>('/admin/bookings', {
+      params
+    });
+    // Backend trả về: { message, data: [...], total, page, limit, total_pages }
+    return {
+      data: response.data.data || [],
+      total: response.data.total || 0,
+      page: response.data.page || 1,
+      limit: response.data.limit || 20,
+      total_pages: response.data.total_pages || 1,
+    };
   },
 };
