@@ -5,9 +5,45 @@ import { useAuth } from '../../contexts/AuthContext';
 import { LoadingSpinner } from '../../components/common/Loading';
 import { formatCurrency } from '../../utils/formatters';
 import { favoriteService } from '../../services/favoriteService';
-import { tourService } from '../../services/tourService';
+import { api } from '../../services/api';
 import type { GetAllTour } from '../../types/tour';
 import { useToast } from '../../hooks/useToast';
+
+interface TourImage {
+  id: number;
+  duong_dan: string;
+  la_anh_chinh: boolean;
+}
+
+interface TourDestination {
+  id: number;
+  ten: string;
+}
+
+interface TourDetail {
+  id: number;
+  tieu_de: string;
+  mo_ta: string;
+  so_ngay: number;
+  so_dem: number;
+  gia_nguoi_lon: number;
+  gia_tre_em: number;
+  don_vi_tien_te: string;
+  trang_thai: string;
+  noi_bat: boolean;
+  ten_danh_muc?: string;
+  ten_nha_cung_cap?: string;
+  diem_trung_binh?: number;
+  tong_so_danh_gia?: number;
+  diem_den?: TourDestination[];
+  hinh_anh?: TourImage[];
+  lich_khoi_hanh?: Array<{ ngay_khoi_hanh: string }>;
+}
+
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+}
 
 export const MyFavoritesPage = () => {
   const { user } = useAuth();
@@ -22,6 +58,33 @@ export const MyFavoritesPage = () => {
     }
   }, [user]);
 
+  const mapTourDetailToCard = (tour: TourDetail): GetAllTour => {
+    const mainImage =
+      tour.hinh_anh?.find(img => img.la_anh_chinh)?.duong_dan ||
+      tour.hinh_anh?.[0]?.duong_dan ||
+      '';
+
+    return {
+      id: tour.id,
+      tieu_de: tour.tieu_de,
+      mo_ta: tour.mo_ta,
+      so_ngay: tour.so_ngay,
+      so_dem: tour.so_dem,
+      gia_nguoi_lon: tour.gia_nguoi_lon,
+      gia_tre_em: tour.gia_tre_em,
+      don_vi_tien_te: tour.don_vi_tien_te,
+      trang_thai: tour.trang_thai,
+      noi_bat: tour.noi_bat,
+      danh_muc_ten: tour.ten_danh_muc || '',
+      nha_cung_cap_ten: tour.ten_nha_cung_cap || '',
+      anh_chinh: mainImage,
+      diem_den: tour.diem_den?.map(item => item.ten) || [],
+      avg_rating: tour.diem_trung_binh || 0,
+      total_reviews: tour.tong_so_danh_gia || 0,
+      next_departure_date: tour.lich_khoi_hanh?.[0]?.ngay_khoi_hanh || null,
+    };
+  };
+
   const fetchFavorites = async () => {
     try {
       setLoading(true);
@@ -31,11 +94,12 @@ export const MyFavoritesPage = () => {
 
       // Fetch tour details for each favorite
       if (tourIds.length > 0) {
-        const tourPromises = tourIds.map(id => tourService.getTourById(id));
+        const tourPromises = tourIds.map(id => api.get<ApiResponse<TourDetail>>(`/tour/${id}`));
         const tourResults = await Promise.allSettled(tourPromises);
         const successfulTours = tourResults
           .filter((result) => result.status === 'fulfilled')
-          .map(result => (result as PromiseFulfilledResult<any>).value as GetAllTour);
+          .map(result => (result as PromiseFulfilledResult<any>).value.data.data as TourDetail)
+          .map(mapTourDetailToCard);
         setTours(successfulTours);
       } else {
         setTours([]);
