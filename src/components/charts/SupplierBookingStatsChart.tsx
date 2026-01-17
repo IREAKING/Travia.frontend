@@ -12,6 +12,8 @@ import { useEffect, useState } from 'react';
 import { supplierService } from '../../services/supplierService';
 import type { SupplierBookingStatsByStatusDetailed, SupplierBookingStatsByStatus } from '../../types';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 const SupplierBookingStatsChart = () => {
   const [data, setData] = useState<any[]>([]);
@@ -117,11 +119,47 @@ const SupplierBookingStatsChart = () => {
 
   const statusKeys = ['cho_duyet', 'da_xac_nhan', 'da_thanh_toan', 'hoan_thanh', 'da_huy'];
 
+  const canExport = data.length > 0;
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      thoi_gian: item.label || item.date || '',
+      cho_duyet: item.cho_duyet || 0,
+      da_xac_nhan: item.da_xac_nhan || 0,
+      da_thanh_toan: item.da_thanh_toan || 0,
+      hoan_thanh: item.hoan_thanh || 0,
+      da_huy: item.da_huy || 0,
+      tong_so: item.tong_so || 0,
+    }));
+    exportToCsv(`supplier-thong-ke-dat-cho-${period}.csv`, rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      thoi_gian: item.label || item.date || '',
+      cho_duyet: item.cho_duyet || 0,
+      da_xac_nhan: item.da_xac_nhan || 0,
+      da_thanh_toan: item.da_thanh_toan || 0,
+      hoan_thanh: item.hoan_thanh || 0,
+      da_huy: item.da_huy || 0,
+      tong_so: item.tong_so || 0,
+    }));
+    exportToXlsx(`supplier-thong-ke-dat-cho-${period}.xlsx`, rows);
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white mb-2">Thống Kê Đặt Chỗ Theo Trạng Thái</h3>
-        <p className="text-sm text-purple-300/80">Phân bổ đặt chỗ theo trạng thái qua thời gian</p>
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-2">Thống Kê Đặt Chỗ Theo Trạng Thái</h3>
+          <p className="text-sm text-purple-300/80">Phân bổ đặt chỗ theo trạng thái qua thời gian</p>
+        </div>
+        <ExportDropdown
+          onExportCsv={handleExportCsv}
+          onExportXlsx={handleExportXlsx}
+          disabled={!canExport}
+          label="Xuất file"
+        />
       </div>
 
       {/* Filters */}

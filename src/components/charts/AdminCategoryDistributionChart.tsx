@@ -4,6 +4,8 @@ import { adminService } from '../../services/adminService';
 import type { AdminChartCategoryDistribution } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 const COLORS = ['#06b6d4', '#a855f7', '#ec4899', '#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6'];
 
@@ -40,6 +42,26 @@ export const AdminCategoryDistributionChart = () => {
   }));
 
   const totalRevenue = formattedData.reduce((sum, item) => sum + item.value, 0);
+  const canExport = formattedData.length > 0;
+
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      danh_muc: item.name,
+      doanh_thu: item.value,
+      so_don: item.so_luong,
+    }));
+    exportToCsv(`admin-co-cau-doanh-thu-${year}-${month}.csv`, rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      danh_muc: item.name,
+      doanh_thu: item.value,
+      so_don: item.so_luong,
+    }));
+    exportToXlsx(`admin-co-cau-doanh-thu-${year}-${month}.xlsx`, rows);
+  };
 
   if (loading) {
     return (
@@ -87,11 +109,17 @@ export const AdminCategoryDistributionChart = () => {
               <p className="text-sm text-slate-400">Phân bố doanh thu theo từng danh mục tour</p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right space-y-2">
             <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               {formatCurrency(totalRevenue, 'VND')}
             </p>
             <p className="text-xs text-slate-500">Tổng doanh thu</p>
+            <ExportDropdown
+              onExportCsv={handleExportCsv}
+              onExportXlsx={handleExportXlsx}
+              disabled={!canExport}
+              label="Xuất file"
+            />
           </div>
         </div>
 

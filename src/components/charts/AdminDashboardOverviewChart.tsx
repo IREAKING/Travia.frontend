@@ -3,6 +3,8 @@ import { adminService } from '../../services/adminService';
 import type { AdminDashboardOverviewByMonthAndYear } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 export const AdminDashboardOverviewChart = () => {
   const [overviewByMonth, setOverviewByMonth] = useState<AdminDashboardOverviewByMonthAndYear | null>(null);
@@ -59,6 +61,40 @@ export const AdminDashboardOverviewChart = () => {
   }
 
   const displayData = overviewByMonth;
+  const canExport = !!displayData;
+
+  const handleExportCsv = () => {
+    if (!displayData) return;
+    exportToCsv(`admin-tong-quan-${year}-${month}.csv`, [
+      {
+        thang: month,
+        nam: year,
+        tong_dat_cho: displayData.tong_dat_cho,
+        so_don_da_huy: displayData.so_don_da_huy,
+        doanh_thu: displayData.doanh_thu,
+        tong_luong_khach: displayData.tong_luong_khach,
+        so_chuyen_khoi_hanh: displayData.so_chuyen_khoi_hanh,
+        so_danh_gia_moi: displayData.so_danh_gia_moi,
+        diem_trung_binh: displayData.diem_trung_binh,
+      },
+    ]);
+  };
+  const handleExportXlsx = () => {
+    if (!displayData) return;
+    exportToXlsx(`admin-tong-quan-${year}-${month}.xlsx`, [
+      {
+        thang: month,
+        nam: year,
+        tong_dat_cho: displayData.tong_dat_cho,
+        so_don_da_huy: displayData.so_don_da_huy,
+        doanh_thu: displayData.doanh_thu,
+        tong_luong_khach: displayData.tong_luong_khach,
+        so_chuyen_khoi_hanh: displayData.so_chuyen_khoi_hanh,
+        so_danh_gia_moi: displayData.so_danh_gia_moi,
+        diem_trung_binh: displayData.diem_trung_binh,
+      },
+    ]);
+  };
 
   return (
     <div className="group relative rounded-2xl overflow-hidden transition-all duration-300">
@@ -76,6 +112,12 @@ export const AdminDashboardOverviewChart = () => {
               <p className="text-xs text-slate-400">Thống kê tổng hợp hệ thống</p>
             </div>
           </div>
+          <ExportDropdown
+            onExportCsv={handleExportCsv}
+            onExportXlsx={handleExportXlsx}
+            disabled={!canExport}
+            label="Xuất file"
+          />
         </div>
 
         {/* Filters - Compact */}

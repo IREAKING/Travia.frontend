@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 import { supplierService } from '../../services/supplierService';
 import type { SupplierRevenueChart } from '../../types';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 const RevenueChart = () => {
   const [data, setData] = useState<SupplierRevenueChart[]>([]);
@@ -74,6 +76,28 @@ const RevenueChart = () => {
     fetchData();
   }, [period, startDate, endDate]);
 
+  const canExport = data.length > 0;
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      thoi_gian: item.label || item.date || '',
+      doanh_thu: item.revenue || 0,
+      so_dat_cho: item.booking_count || 0,
+      so_khach: item.customer_count || 0,
+    }));
+    exportToCsv(`supplier-doanh-thu-${period}.csv`, rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      thoi_gian: item.label || item.date || '',
+      doanh_thu: item.revenue || 0,
+      so_dat_cho: item.booking_count || 0,
+      so_khach: item.customer_count || 0,
+    }));
+    exportToXlsx(`supplier-doanh-thu-${period}.xlsx`, rows);
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-4 md:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
@@ -81,9 +105,17 @@ const RevenueChart = () => {
           <h3 className="text-lg font-semibold text-white">Doanh Thu Theo Thời Gian</h3>
           <p className="text-sm text-indigo-300/80">Tổng doanh thu và số lượng đặt chỗ</p>
         </div>
-        <div className="flex space-x-2">
-          <div className="w-3 h-3 bg-indigo-400 rounded-full"></div>
-          <span className="text-sm text-indigo-300">Doanh thu</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-indigo-400 rounded-full"></div>
+            <span className="text-sm text-indigo-300">Doanh thu</span>
+          </div>
+          <ExportDropdown
+            onExportCsv={handleExportCsv}
+            onExportXlsx={handleExportXlsx}
+            disabled={!canExport}
+            label="Xuất file"
+          />
         </div>
       </div>
 

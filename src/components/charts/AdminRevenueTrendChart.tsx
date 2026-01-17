@@ -4,6 +4,8 @@ import { adminService } from '../../services/adminService';
 import type { AdminChartRevenueTrend } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 export const AdminRevenueTrendChart = () => {
   const [data, setData] = useState<AdminChartRevenueTrend[]>([]);
@@ -67,6 +69,28 @@ export const AdminRevenueTrendChart = () => {
     );
   }
 
+  const canExport = formattedData.length > 0;
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      ngay: item.ngay || '',
+      doanh_thu: item.doanh_thu || 0,
+      so_don: item.tong_so_don || 0,
+      tong_khach: item.tong_khach || 0,
+    }));
+    exportToCsv(`admin-xu-huong-doanh-thu-${year}-${month}.csv`, rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      ngay: item.ngay || '',
+      doanh_thu: item.doanh_thu || 0,
+      so_don: item.tong_so_don || 0,
+      tong_khach: item.tong_khach || 0,
+    }));
+    exportToXlsx(`admin-xu-huong-doanh-thu-${year}-${month}.xlsx`, rows);
+  };
+
   return (
     <div className="group relative rounded-3xl overflow-hidden transition-all duration-700 hover:-translate-y-1">
       <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-3xl opacity-0 group-hover:opacity-50 blur-xl transition-all duration-700"></div>
@@ -83,6 +107,12 @@ export const AdminRevenueTrendChart = () => {
               <p className="text-sm text-slate-400">Theo dõi xu hướng theo thời gian</p>
             </div>
           </div>
+          <ExportDropdown
+            onExportCsv={handleExportCsv}
+            onExportXlsx={handleExportXlsx}
+            disabled={!canExport}
+            label="Xuất file"
+          />
         </div>
 
         {/* Filters */}

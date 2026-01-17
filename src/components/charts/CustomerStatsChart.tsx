@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { supplierService } from '../../services/supplierService';
 import type { SupplierCustomerStats } from '../../types';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 const CustomerStatsChart = () => {
   const [data, setData] = useState<SupplierCustomerStats[]>([]);
@@ -51,11 +53,47 @@ const CustomerStatsChart = () => {
     });
   };
 
+  const canExport = data.length > 0;
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = data.map((customer) => ({
+      khach_hang: customer.ten_khach_hang,
+      email: customer.email_khach_hang,
+      so_dat_cho: customer.so_dat_cho,
+      tong_tien: customer.tong_tien,
+      so_khach: customer.so_nguoi_lon_va_tre_em,
+      ngay_dat_dau_tien: formatDate(customer.ngay_dat_dau_tien),
+      ngay_dat_cuoi_cung: formatDate(customer.ngay_dat_cuoi_cung),
+    }));
+    exportToCsv('supplier-thong-ke-khach-hang.csv', rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = data.map((customer) => ({
+      khach_hang: customer.ten_khach_hang,
+      email: customer.email_khach_hang,
+      so_dat_cho: customer.so_dat_cho,
+      tong_tien: customer.tong_tien,
+      so_khach: customer.so_nguoi_lon_va_tre_em,
+      ngay_dat_dau_tien: formatDate(customer.ngay_dat_dau_tien),
+      ngay_dat_cuoi_cung: formatDate(customer.ngay_dat_cuoi_cung),
+    }));
+    exportToXlsx('supplier-thong-ke-khach-hang.xlsx', rows);
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white mb-2">Thống Kê Khách Hàng</h3>
-        <p className="text-sm text-purple-300/80">Top khách hàng theo số lần đặt hoặc tổng tiền</p>
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-2">Thống Kê Khách Hàng</h3>
+          <p className="text-sm text-purple-300/80">Top khách hàng theo số lần đặt hoặc tổng tiền</p>
+        </div>
+        <ExportDropdown
+          onExportCsv={handleExportCsv}
+          onExportXlsx={handleExportXlsx}
+          disabled={!canExport}
+          label="Xuất file"
+        />
       </div>
 
       {/* Filters */}

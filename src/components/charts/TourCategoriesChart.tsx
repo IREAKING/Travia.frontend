@@ -9,6 +9,8 @@ import {
 import { useEffect, useState } from 'react';
 import { supplierService } from '../../services/supplierService';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 const colors = ['#6366F1', '#A855F7', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#14B8A6'];
 
@@ -44,11 +46,37 @@ const TourCategoriesChart = () => {
 
     fetchData();
   }, []);
+  const canExport = data.length > 0;
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      danh_muc: item.name,
+      so_tour: item.value,
+    }));
+    exportToCsv('supplier-tour-theo-danh-muc.csv', rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      danh_muc: item.name,
+      so_tour: item.value,
+    }));
+    exportToXlsx('supplier-tour-theo-danh-muc.xlsx', rows);
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white">Phân Bố Tour Theo Danh Mục</h3>
-        <p className="text-sm text-purple-300/80">Tỷ lệ các loại tour trong hệ thống</p>
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-white">Phân Bố Tour Theo Danh Mục</h3>
+          <p className="text-sm text-purple-300/80">Tỷ lệ các loại tour trong hệ thống</p>
+        </div>
+        <ExportDropdown
+          onExportCsv={handleExportCsv}
+          onExportXlsx={handleExportXlsx}
+          disabled={!canExport}
+          label="Xuất file"
+        />
       </div>
       
       {loading ? (

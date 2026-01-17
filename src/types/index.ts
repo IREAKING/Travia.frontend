@@ -605,6 +605,7 @@ export interface SupplierTourStatsByCategory {
 export interface SupplierRevenueChart {
   period?: string;
   date?: string;
+  label?: string;
   revenue: number | string;
   booking_count: number;
   customer_count: number;

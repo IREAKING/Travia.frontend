@@ -4,6 +4,8 @@ import { adminService } from '../../services/adminService';
 import type { TopBookedTour } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 const COLORS = ['#06b6d4', '#a855f7', '#ec4899', '#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6', '#14b8a6', '#f97316'];
 
@@ -69,6 +71,26 @@ export const AdminTopBookedToursChart = () => {
     );
   }
 
+  const canExport = formattedData.length > 0;
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      tour: item.tieu_de || 'Không có tiêu đề',
+      so_booking: item.so_booking || 0,
+      tong_doanh_thu: item.tong_doanh_thu || 0,
+    }));
+    exportToCsv(`admin-top-tour-dat-cho-${limit}.csv`, rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      tour: item.tieu_de || 'Không có tiêu đề',
+      so_booking: item.so_booking || 0,
+      tong_doanh_thu: item.tong_doanh_thu || 0,
+    }));
+    exportToXlsx(`admin-top-tour-dat-cho-${limit}.xlsx`, rows);
+  };
+
   return (
     <div className="group relative rounded-3xl overflow-hidden transition-all duration-700 hover:-translate-y-1">
       <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-3xl opacity-0 group-hover:opacity-50 blur-xl transition-all duration-700"></div>
@@ -85,6 +107,12 @@ export const AdminTopBookedToursChart = () => {
               <p className="text-sm text-slate-400">Danh sách tour phổ biến nhất</p>
             </div>
           </div>
+          <ExportDropdown
+            onExportCsv={handleExportCsv}
+            onExportXlsx={handleExportXlsx}
+            disabled={!canExport}
+            label="Xuất file"
+          />
         </div>
 
         {/* Filters */}

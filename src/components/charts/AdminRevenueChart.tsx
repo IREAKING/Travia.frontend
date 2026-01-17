@@ -3,6 +3,8 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { adminService } from '../../services/adminService';
 import type { RevenueByDay, AdminSupplierOption } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 export const AdminRevenueChart = () => {
   const [data, setData] = useState<RevenueByDay[]>([]);
@@ -55,6 +57,24 @@ export const AdminRevenueChart = () => {
   });
 
   const totalRevenue = formattedData.reduce((sum, item) => sum + (item.revenue || 0), 0);
+  const canExport = formattedData.length > 0;
+
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      ngay: item.date || item.ngay || '',
+      doanh_thu: item.revenue || 0,
+    }));
+    exportToCsv(`admin-doanh-thu-${year}-${month}.csv`, rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      ngay: item.date || item.ngay || '',
+      doanh_thu: item.revenue || 0,
+    }));
+    exportToXlsx(`admin-doanh-thu-${year}-${month}.xlsx`, rows);
+  };
 
   if (loading) {
     return (
@@ -104,11 +124,17 @@ export const AdminRevenueChart = () => {
               <p className="text-sm text-slate-400">Theo dõi doanh thu hàng ngày</p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right space-y-2">
             <p className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               {formatCurrency(totalRevenue, 'VND')}
             </p>
-              <p className="text-xs text-slate-500">Tổng doanh thu</p>
+            <p className="text-xs text-slate-500">Tổng doanh thu</p>
+            <ExportDropdown
+              onExportCsv={handleExportCsv}
+              onExportXlsx={handleExportXlsx}
+              disabled={!canExport}
+              label="Xuất file"
+            />
           </div>
         </div>
 

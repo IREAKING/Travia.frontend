@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 interface ToursCreatedByMonth {
   month: number | string;
@@ -56,6 +58,26 @@ export const AdminToursCreatedChart = () => {
   }));
 
   const totalToursCreated = data.reduce((sum, item) => sum + (item.tours_created || 0), 0);
+  const canExport = data.length > 0;
+
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      thang: item.month,
+      nam: item.year || '',
+      tour_moi: item.tours_created || 0,
+    }));
+    exportToCsv('admin-tour-tao-moi.csv', rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      thang: item.month,
+      nam: item.year || '',
+      tour_moi: item.tours_created || 0,
+    }));
+    exportToXlsx('admin-tour-tao-moi.xlsx', rows);
+  };
 
   return (
     <div className="group relative rounded-3xl overflow-hidden transition-all duration-700 hover:-translate-y-1">
@@ -73,11 +95,17 @@ export const AdminToursCreatedChart = () => {
               <p className="text-sm text-slate-400">12 tháng gần nhất</p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right space-y-2">
             <p className="text-2xl font-bold bg-gradient-to-r from-teal-400 via-emerald-400 to-green-400 bg-clip-text text-transparent">
               {totalToursCreated.toLocaleString()}
             </p>
             <p className="text-xs text-slate-500">Tổng tour mới</p>
+            <ExportDropdown
+              onExportCsv={handleExportCsv}
+              onExportXlsx={handleExportXlsx}
+              disabled={!canExport}
+              label="Xuất file"
+            />
           </div>
         </div>
 

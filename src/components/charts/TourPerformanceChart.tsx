@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 import { supplierService } from '../../services/supplierService';
 // import type { SupplierTopTour } from '../../types';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 const TourPerformanceChart = () => {
   const [data, setData] = useState<{ name: string; bookings: number; revenue: number }[]>([]);
@@ -48,11 +50,39 @@ const TourPerformanceChart = () => {
   useEffect(() => {
     fetchData();
   }, [sortBy, limit, startDate, endDate]);
+  const canExport = data.length > 0;
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      tour: item.name,
+      so_dat_cho: item.bookings,
+      doanh_thu: item.revenue,
+    }));
+    exportToCsv(`supplier-hieu-suat-tour-${sortBy}.csv`, rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      tour: item.name,
+      so_dat_cho: item.bookings,
+      doanh_thu: item.revenue,
+    }));
+    exportToXlsx(`supplier-hieu-suat-tour-${sortBy}.xlsx`, rows);
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-6">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white">Hiệu Suất Tour</h3>
-        <p className="text-sm text-pink-300/80">Top tours có hiệu suất tốt nhất</p>
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-white">Hiệu Suất Tour</h3>
+          <p className="text-sm text-pink-300/80">Top tours có hiệu suất tốt nhất</p>
+        </div>
+        <ExportDropdown
+          onExportCsv={handleExportCsv}
+          onExportXlsx={handleExportXlsx}
+          disabled={!canExport}
+          label="Xuất file"
+        />
       </div>
 
       {/* Filters */}

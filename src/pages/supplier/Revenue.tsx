@@ -4,6 +4,8 @@ import { SupplierSidebar } from '../../components/layout/SupplierSidebar';
 import { LoadingSpinner } from '../../components/common/Loading';
 import { useToast } from '../../hooks/useToast';
 import { supplierService } from '../../services/supplierService';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../../components/common/ExportDropdown';
 
 type TimePeriod = 'today' | 'week' | 'month' | 'year' | 'custom';
 
@@ -125,6 +127,60 @@ export const SupplierRevenuePage = () => {
     return new Intl.NumberFormat('vi-VN').format(num);
   };
 
+  const handleExportSummaryCsv = () => {
+    if (!revenueData) return;
+    exportToCsv('supplier-doanh-thu-tong-quan.csv', [
+      {
+        tong_doanh_thu: revenueData.tong_doanh_thu,
+        doanh_thu_thang_nay: revenueData.doanh_thu_thang_nay,
+        doanh_thu_thang_truoc: revenueData.doanh_thu_thang_truoc,
+        ty_le_tang_truong: revenueData.ty_le_tang_truong,
+        so_dat_cho: revenueData.so_dat_cho,
+        doanh_thu_trung_binh_don: revenueData.doanh_thu_trung_binh_don,
+      },
+    ]);
+  };
+  const handleExportSummaryXlsx = () => {
+    if (!revenueData) return;
+    exportToXlsx('supplier-doanh-thu-tong-quan.xlsx', [
+      {
+        tong_doanh_thu: revenueData.tong_doanh_thu,
+        doanh_thu_thang_nay: revenueData.doanh_thu_thang_nay,
+        doanh_thu_thang_truoc: revenueData.doanh_thu_thang_truoc,
+        ty_le_tang_truong: revenueData.ty_le_tang_truong,
+        so_dat_cho: revenueData.so_dat_cho,
+        doanh_thu_trung_binh_don: revenueData.doanh_thu_trung_binh_don,
+      },
+    ]);
+  };
+
+  const handleExportTransactionsCsv = () => {
+    if (transactions.length === 0) return;
+    const rows = transactions.map((t) => ({
+      ma_dat_cho: t.ma_dat_cho,
+      tour: t.tour_tieu_de,
+      khach_hang: t.nguoi_dung_ten,
+      so_tien: t.so_tien,
+      phi_dich_vu: t.phi_dich_vu,
+      so_tien_thuc_nhan: t.so_tien_thuc_nhan,
+      ngay_thanh_toan: t.ngay_thanh_toan,
+    }));
+    exportToCsv('supplier-giao-dich.csv', rows);
+  };
+  const handleExportTransactionsXlsx = () => {
+    if (transactions.length === 0) return;
+    const rows = transactions.map((t) => ({
+      ma_dat_cho: t.ma_dat_cho,
+      tour: t.tour_tieu_de,
+      khach_hang: t.nguoi_dung_ten,
+      so_tien: t.so_tien,
+      phi_dich_vu: t.phi_dich_vu,
+      so_tien_thuc_nhan: t.so_tien_thuc_nhan,
+      ngay_thanh_toan: t.ngay_thanh_toan,
+    }));
+    exportToXlsx('supplier-giao-dich.xlsx', rows);
+  };
+
   const getStatusBadge = (status: string | { trang_thai_dat_cho?: string; valid?: boolean }) => {
     // Extract status string from object or use string directly
     let statusStr: string;
@@ -185,10 +241,24 @@ export const SupplierRevenuePage = () => {
               <h1 className="text-3xl font-bold text-white mb-2">Doanh Thu & Thu Nhập</h1>
               <p className="text-cyan-300">Theo dõi và quản lý tài chính</p>
             </div>
-            <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/10">
-              <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <div className="flex items-center gap-3">
+              <ExportDropdown
+                onExportCsv={handleExportSummaryCsv}
+                onExportXlsx={handleExportSummaryXlsx}
+                disabled={!revenueData}
+                label="Xuất tổng quan"
+              />
+              <ExportDropdown
+                onExportCsv={handleExportTransactionsCsv}
+                onExportXlsx={handleExportTransactionsXlsx}
+                disabled={transactions.length === 0}
+                label="Xuất giao dịch"
+              />
+              <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/10">
+                <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>

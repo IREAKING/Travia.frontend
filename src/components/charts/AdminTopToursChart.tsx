@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { adminService } from '../../services/adminService';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 import type { TopBookedTour } from '../../types';
 
 export const AdminTopToursChart = () => {
@@ -64,6 +66,24 @@ export const AdminTopToursChart = () => {
   }));
 
   const totalBookings = data.reduce((sum, item) => sum + (item.booking_count || 0), 0);
+  const canExport = data.length > 0;
+
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      tour: item.tour_title || 'N/A',
+      so_dat_cho: item.booking_count || 0,
+    }));
+    exportToCsv('admin-top-tours.csv', rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = data.map((item) => ({
+      tour: item.tour_title || 'N/A',
+      so_dat_cho: item.booking_count || 0,
+    }));
+    exportToXlsx('admin-top-tours.xlsx', rows);
+  };
 
   return (
     <div className="group relative rounded-3xl overflow-hidden transition-all duration-700 hover:-translate-y-1">
@@ -81,11 +101,17 @@ export const AdminTopToursChart = () => {
               <p className="text-sm text-slate-400">10 tour phổ biến nhất</p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right space-y-2">
             <p className="text-2xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
               {totalBookings.toLocaleString()}
             </p>
             <p className="text-xs text-slate-500">Tổng đặt chỗ</p>
+            <ExportDropdown
+              onExportCsv={handleExportCsv}
+              onExportXlsx={handleExportXlsx}
+              disabled={!canExport}
+              label="Xuất file"
+            />
           </div>
         </div>
 

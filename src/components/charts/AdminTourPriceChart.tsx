@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 interface TourPriceDistribution {
   khoang_gia?: string;
@@ -59,6 +61,24 @@ export const AdminTourPriceChart = () => {
   }));
 
   const totalTours = data.reduce((sum, item) => sum + (item.so_luong || item.tour_count || 0), 0);
+  const canExport = formattedData.length > 0;
+
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      khoang_gia: item.name,
+      so_tour: item.count,
+    }));
+    exportToCsv('admin-phan-bo-gia-tour.csv', rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      khoang_gia: item.name,
+      so_tour: item.count,
+    }));
+    exportToXlsx('admin-phan-bo-gia-tour.xlsx', rows);
+  };
 
   return (
     <div className="group relative rounded-3xl overflow-hidden transition-all duration-700 hover:-translate-y-1">
@@ -76,11 +96,17 @@ export const AdminTourPriceChart = () => {
               <p className="text-sm text-slate-400">Số tour theo khoảng giá</p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right space-y-2">
             <p className="text-2xl font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">
               {totalTours.toLocaleString()}
             </p>
             <p className="text-xs text-slate-500">Tổng tour</p>
+            <ExportDropdown
+              onExportCsv={handleExportCsv}
+              onExportXlsx={handleExportXlsx}
+              disabled={!canExport}
+              label="Xuất file"
+            />
           </div>
         </div>
 

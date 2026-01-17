@@ -4,6 +4,8 @@ import { adminService } from '../../services/adminService';
 import type { AdminChartBookingStatusStats } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 import { LoadingSpinner } from '../common/Loading';
+import { exportToCsv, exportToXlsx } from '../../utils/export';
+import { ExportDropdown } from '../common/ExportDropdown';
 
 const STATUS_COLORS: { [key: string]: string } = {
   'cho_xac_nhan': '#f59e0b',
@@ -57,6 +59,26 @@ export const AdminBookingStatusStatsChart = () => {
   }));
 
   const totalBookings = formattedData.reduce((sum, item) => sum + item.so_luong, 0);
+  const canExport = formattedData.length > 0;
+
+  const handleExportCsv = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      trang_thai: item.name,
+      so_luong: item.so_luong,
+      gia_tri_uoc_tinh: item.gia_tri,
+    }));
+    exportToCsv(`admin-trang-thai-dat-cho-${year}-${month}.csv`, rows);
+  };
+  const handleExportXlsx = () => {
+    if (!canExport) return;
+    const rows = formattedData.map((item) => ({
+      trang_thai: item.name,
+      so_luong: item.so_luong,
+      gia_tri_uoc_tinh: item.gia_tri,
+    }));
+    exportToXlsx(`admin-trang-thai-dat-cho-${year}-${month}.xlsx`, rows);
+  };
 
   if (loading) {
     return (
@@ -103,11 +125,17 @@ export const AdminBookingStatusStatsChart = () => {
               <p className="text-sm text-slate-400">Phân bố theo trạng thái</p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right space-y-2">
             <p className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text text-transparent">
               {totalBookings.toLocaleString()}
             </p>
             <p className="text-xs text-slate-500">Tổng đặt chỗ</p>
+            <ExportDropdown
+              onExportCsv={handleExportCsv}
+              onExportXlsx={handleExportXlsx}
+              disabled={!canExport}
+              label="Xuất file"
+            />
           </div>
         </div>
 
