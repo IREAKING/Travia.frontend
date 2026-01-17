@@ -31,13 +31,13 @@
   }
 
   html {
-    font-family: "Playwrite AU QLD", "Be Vietnam Pro", "Montserrat Alternates", "Cormorant Garamond", "Noto Serif", "Great Vibes", "Lobster", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-family: "Be Vietnam Pro", "Montserrat Alternates", "Noto Serif", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   }
 
   body {
     margin: 0;
     padding: 0;
-    font-family: "Playwrite AU QLD", "Be Vietnam Pro", "Montserrat Alternates", "Cormorant Garamond", "Noto Serif", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-family: "Be Vietnam Pro", "Montserrat Alternates", "Noto Serif", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -51,7 +51,7 @@
     scroll-behavior: smooth;
     overflow-x: hidden;
     width: 100%;
-    font-family: "Playwrite AU QLD", "Be Vietnam Pro", "Montserrat Alternates", "Cormorant Garamond", "Noto Serif", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-family: "Be Vietnam Pro", "Montserrat Alternates", "Noto Serif", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   }
 
   #root {
@@ -329,11 +329,11 @@
 
   /* Font utilities */
   .font-heading {
-    font-family: "Playwrite AU QLD", "Cormorant Garamond", "Noto Serif", Georgia, 'Times New Roman', serif;
+    font-family: "Cormorant Garamond", "Noto Serif", Georgia, 'Times New Roman', serif;
   }
 
   .font-body {
-    font-family: "Playwrite AU QLD", "Be Vietnam Pro", "Montserrat Alternates", "Noto Serif", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: "Be Vietnam Pro", "Montserrat Alternates", "Noto Serif", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   .font-noto-serif {
@@ -382,19 +382,19 @@
 
   /* Text styles */
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Playwrite AU QLD", "Cormorant Garamond", "Noto Serif", Georgia, serif;
+    font-family: "Cormorant Garamond", "Noto Serif", Georgia, serif;
     font-weight: 400;
     letter-spacing: -0.02em;
   }
 
   .heading-display {
-    font-family: "Playwrite AU QLD", "Cormorant Garamond", "Noto Serif", Georgia, 'Times New Roman', serif;
+    font-family: "Cormorant Garamond", "Noto Serif", Georgia, 'Times New Roman', serif;
     font-weight: 400;
     letter-spacing: -0.05em;
   }
 
   .text-elegant {
-    font-family: "Playwrite AU QLD", "Cormorant Garamond", "Noto Serif", Georgia, 'Times New Roman', serif;
+    font-family: "Cormorant Garamond", "Noto Serif", Georgia, 'Times New Roman', serif;
     font-style: normal;
   }
 
